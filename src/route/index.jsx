@@ -19,8 +19,8 @@ import { useSelector } from "react-redux";
 import NotFound from "../pages/not-found";
 
 export default function AppRoutes() {
-  const isActive = useSelector((state) => state.user.isActive);
-  console.log(isActive)
+  const isActive = useSelector((state) => state?.user?.isActive);
+  console.log(isActive);
 
   return (
     <>
@@ -43,8 +43,15 @@ export default function AppRoutes() {
         <Route path="/package" element={<Packages />} />
         <Route path="/auth/sign-in" element={<AuthSignIn />} />
         <Route path="/auth/sign-up" element={<AuthSignUp />} />
-        <Route path="/dashboard/*" element={isActive === true && <Dashboard />} />
-        <Route path="/welcome-dashboard" element={isActive === true && <Welcome />} />
+        {/* <Route path="/dashboard/*" element={<Dashboard />} /> */}
+        <Route
+          path="/dashboard/*"
+          element={isActive === true && <Dashboard />}
+        />
+        <Route
+          path="/welcome-dashboard"
+          element={isActive === true && <Welcome />}
+        />
         <Route path="/*" element={<NotFound />} />
       </Routes>
     </>

@@ -1,22 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AuthBg from "@/assets/auth/auth-bg.png";
-import { Font1, H6, Font2 } from "@/config/typography";
-import Radiobutton from "@/component/common/radiobutton";
-import usaImg from "@/assets/auth/icon/usa.png";
-import canadaImg from "@/assets/auth/icon/canada.png";
+import { H6, Font2 } from "@/config/typography";
 import InputField from "@/component/common/input";
-import Dropdown from "@/component/common/dropdown";
-import Location from "@/assets/common-icon/location.png";
-import lock from "@/assets/common-icon/lock.png";
 import Button from "@/component/dashboard/button";
 import { useNavigate } from "react-router-dom";
 import Toast from "@/component/common/toast";
 import { Post } from "@/config/api-method";
 import { BackArrow } from "@/config/app-constant";
-import icon from "../../assets/common-icon/google-icon.png";
 import line from "../../assets/auth/horizental.png";
 import { storeData } from "../../config/helper";
-import { useDispatch } from 'react-redux'
+import { useDispatch } from "react-redux";
 import { add } from "../../redux/reducers/userSlice";
 
 export default function AuthSignIn() {
@@ -32,7 +25,7 @@ export default function AuthSignIn() {
   // 	window.open(
   // 		`http://localhost:5000/auth/google/callback`,
   // 		"_self"
-  // 	); 
+  // 	);
   // };
 
   const fillModel = (key, val) => {
@@ -56,35 +49,23 @@ export default function AuthSignIn() {
       showToast("Email and password are required.", "error");
       return;
     }
-    model.isActive = true
+    model.isActive = true;
     // console.log(model);
-    Post('auth/login', model)
-      .then(res => {
-        console.log(res?.data)
+    Post("auth/login", model)
+      .then((res) => {
+        console.log(res?.data);
         if (res?.data) {
-          dispatch(add(res?.data?.user)); // Ensure you're only dispatching the user object
-
-          navigate('/welcome-dashboard', { state: { loggedIn: true } });
+          dispatch(add(res?.data?.user));
+          storeData("token", res.data?.token);
+          navigate("/welcome-dashboard", { state: { loggedIn: true } });
         } else {
           showToast("Unexpected response format.", "error");
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         showToast("Login failed. Please check your credentials.", "error");
       });
-    // Post('auth/login', model)
-    //   .then(res => {
-    //     console.log(res);
-    //     // storeData('token', res.data?.data?.token);
-    //     dispatch(add({ ...res.data?.data }));
-    //     dispatch(add(res.data?.data?.user));
-    //     navigate('/welcome-dashboard', { state: { loggedIn: true } });
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     showToast("Login failed. Please check your credentials.", "error");
-    //   });
   };
 
   const googleAuth = () => {
@@ -131,7 +112,10 @@ export default function AuthSignIn() {
               <Font2 className="pt-1 pb-2 text-start">
                 <span className="text-[#666666]">Forget Password </span>{" "}
               </Font2>
-              <Button className="w-[100%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mt-2 mb-4" onClick={save}>
+              <Button
+                className="w-[100%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mt-2 mb-4"
+                onClick={save}
+              >
                 Next
               </Button>
               <img src={line} />
@@ -155,7 +139,6 @@ export default function AuthSignIn() {
               </Font2>
             </div>
           </div>
-
         </div>
       </div>
 

@@ -1,4 +1,3 @@
-// craco.config.js
 const path = require("path");
 
 module.exports = {
@@ -12,10 +11,10 @@ module.exports = {
           test: /\.svg$/,
           use: [
             {
-              loader: 'file-loader',
+              loader: "file-loader",
               options: {
-                name: '[name].[hash].[ext]',
-                outputPath: 'assets/',
+                name: "[name].[hash].[ext]",
+                outputPath: "assets/",
               },
             },
           ],

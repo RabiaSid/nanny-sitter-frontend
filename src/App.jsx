@@ -1,20 +1,20 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { H1 } from "@/config/typography";
 import ConditionalLayout from "@/config/conditionalLayout";
 import AppRoutes from "@/route";
 import { Provider } from "react-redux";
-import Store from "./redux/store/store"
+import store from "./redux/store/store.jsx";
 
 function App() {
   return (
     <>
-    <Provider store={Store}>
-      <Router>
-        <ConditionalLayout>
-          <AppRoutes />
-        </ConditionalLayout>
-      </Router>
+      <Provider store={store}>
+        <Router>
+          <ConditionalLayout>
+            <AppRoutes />
+          </ConditionalLayout>
+        </Router>
       </Provider>
     </>
   );

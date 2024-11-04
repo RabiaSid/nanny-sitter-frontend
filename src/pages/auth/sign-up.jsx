@@ -17,7 +17,7 @@ import icon from "../../assets/common-icon/google-icon.png";
 import imgbaby from "../../assets/auth/outline.png";
 import TextArea from "../../component/common/textarea";
 import { storeData } from "../../config/helper";
-import { useDispatch } from 'react-redux'
+import { useDispatch } from "react-redux";
 import { add } from "../../redux/reducers/userSlice";
 
 // Array of nanny questions
@@ -116,10 +116,17 @@ const nanny = [
     type: "input",
     key: "budget",
     label: "Hourly Rate (roughly)",
-    para: (<div>
-      <p className="py-2 border-b-2 ">The average cost of a nanny in your city is $19.96 per hour.</p>
-      <p className="py-2">You can update this information anytime on your Top Nanny Sitter Profile</p>
-    </div>),
+    para: (
+      <div>
+        <p className="py-2 border-b-2 ">
+          The average cost of a nanny in your city is $19.96 per hour.
+        </p>
+        <p className="py-2">
+          You can update this information anytime on your Top Nanny Sitter
+          Profile
+        </p>
+      </div>
+    ),
   },
   {
     title: "What languages do you speak fluently?",
@@ -177,11 +184,10 @@ const nanny = [
     ],
   },
   {
-    title: "Tell me about your-self?",
+    title: "Tell me about your self",
     type: "textarea",
     key: "aboutYourself",
-    label: "Description",
-
+    label: "Describtion",
   },
 ];
 
@@ -198,7 +204,7 @@ const user = [
   {
     title: "Are you sharing a nanny?",
     type: "radio",
-    key: "shareNanny",
+    key: "sharingNanny",
     options: [
       { label: "Yes", value: "yes" },
       { label: "No", value: "no" },
@@ -244,8 +250,6 @@ const user = [
   },
 ];
 
-
-
 export default function AuthSignUp() {
   const dispatch = useDispatch();
   const [model, setModel] = useState({});
@@ -275,11 +279,11 @@ export default function AuthSignUp() {
   };
 
   const nextStep = () => {
-    setStep(step + 1)
-    setIsShow(false)
+    setStep(step + 1);
+    setIsShow(false);
   };
   const handleBack = () => {
-    setStep(step - 1)
+    setStep(step - 1);
   };
   // Set the current question based on the model role
   useEffect(() => {
@@ -380,20 +384,19 @@ export default function AuthSignUp() {
               onChange={(e) => {
                 fillModel(question.key, e.target.value);
                 if (e.target.value) {
-                  setIsShow(true)
+                  setIsShow(true);
                 }
               }}
               className="input-class"
-
             />
-            {isShow === true &&
+            {isShow === true && (
               <Button
                 className="w-[95%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold my-2"
                 onClick={() => nextStep()}
               >
                 Select
               </Button>
-            }
+            )}
           </>
         );
       case "dropdown":
@@ -421,18 +424,19 @@ export default function AuthSignUp() {
               onChange={(e) => {
                 fillModel(question.key, e.target.value);
                 if (e.target.value) {
-                  setIsShow(true)
+                  setIsShow(true);
                 }
               }}
               className="input-class"
             />
-            {isShow === true &&
+            {isShow === true && (
               <Button
                 className="w-[95%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mt-4 mb-2"
                 onClick={() => nextStep()}
               >
                 Select
-              </Button>}
+              </Button>
+            )}
           </>
         );
       default:
@@ -440,39 +444,65 @@ export default function AuthSignUp() {
     }
   };
 
-
   const googleAuth = () => {
     window.open(`http://localhost:5000/auth/google/callback`, "_self");
   };
 
   const save = () => {
-    if (!model.email || !model.password || !model.firstName || !model.lastName) {
+    if (
+      !model.email ||
+      !model.password ||
+      !model.firstName ||
+      !model.lastName
+    ) {
       showToast("All fields are required.", "error");
       return;
     }
-    
+
     model.isActive = true; // Ensure model has this property set
     model.id = 1; // Ensure model has this property set
-  
-    console.log("Model being sent:", model); // Log the model
-  
-    Post('auth/user-signup', model)
-      .then(res => {
-        console.log("Full response:", res); // Log the entire response
-        console.log(res?.data + "kzxlcjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-        console.log(res?.data + "0000000000000000000000000000000000000000");
-  
-        // Adjusted dispatch to directly use the user data from the response
-        dispatch(add(res.data)); // Assuming the user details are directly in res.data
-        storeData('token', res.data.token);
-        navigate('/welcome-dashboard', { state: { loggedIn: true } });
-      })
-      .catch((err) => {
-        console.error(err.response ? err.response.data : err.message); // More detailed error logging
-        showToast("Signup failed. Please try again.", "error");
-      });
+
+    console.log("Model being sent:", { ...model }); // Log the model
+
+    if (model.role === "user") {
+      Post("auth/user-signup", model)
+        .then((res) => {
+          console.log("Full response:", res); // Log the entire response
+          console.log(
+            res?.data + "kzxlcjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"
+          );
+          console.log(res?.data + "0000000000000000000000000000000000000000");
+
+          // Adjusted dispatch to directly use the user data from the response
+          dispatch(add(res.data)); // Assuming the user details are directly in res.data
+          storeData("token", res.data.token);
+          navigate("/welcome-dashboard", { state: { loggedIn: true } });
+        })
+        .catch((err) => {
+          console.error(err.response ? err.response.data : err.message); // More detailed error logging
+          showToast("Signup failed. Please try again.", "error");
+        });
+    } else {
+      Post("auth/nanny-signup", model)
+        .then((res) => {
+          console.log("Full response:", res); // Log the entire response
+          console.log(
+            res?.data + "kzxlcjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"
+          );
+          console.log(res?.data + "0000000000000000000000000000000000000000");
+
+          dispatch(add(res.data));
+          storeData("token", res.data.token);
+          navigate("/welcome-dashboard", { state: { loggedIn: true } });
+        })
+        .catch((err) => {
+          console.error(err.response ? err.response.data : err.message);
+          console.log(err);
+          showToast("Signup failed. Please try again.", "error");
+        });
+    }
   };
-  console.log({ ...model })
+  console.log({ ...model });
 
   return (
     <>
@@ -546,35 +576,36 @@ export default function AuthSignUp() {
                 </H6>
               </div>
               <div className="w-2/3 mx-auto text-center pb-14 pt-8">
-
-                <Font1 className="pb-5">Which country are you located in?</Font1>
+                <Font1 className="pb-5">
+                  Which country are you located in?
+                </Font1>
                 <Radiobutton
                   id="usa"
                   name="region"
                   value="usa"
                   onChange={(e) => {
-                    fillModel("region", e.target.value)
-                    nextStep()
+                    fillModel("region", e.target.value);
+                    nextStep();
                   }}
                   label="USA"
                   checked={model.region === "usa"}
                   btnField={true}
                   image={usaImg}
-                // right={usaImg}
+                  // right={usaImg}
                 />
                 <Radiobutton
                   id="canada"
                   name="region"
                   value="canada"
                   onChange={(e) => {
-                    fillModel("region", e.target.valu)
-                    nextStep()
+                    fillModel("region", e.target.valu);
+                    nextStep();
                   }}
                   label="Canada"
                   checked={model.region === "canada"}
                   btnField={true}
                   image={canadaImg}
-                // right={canadaImg}
+                  // right={canadaImg}
                 />
                 {/* <Button
                 className={`w-[95%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold `}
@@ -604,7 +635,10 @@ export default function AuthSignUp() {
             <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md">
               {/* <form> */}
               <div className="border-b border-gray-300 relative">
-                <button className="absolute top-[40%] left-[30px]" onClick={handleBack}>
+                <button
+                  className="absolute top-[40%] left-[30px]"
+                  onClick={handleBack}
+                >
                   {" "}
                   <BackArrow />
                 </button>{" "}
@@ -648,9 +682,7 @@ export default function AuthSignUp() {
                         ))}
                       </>
                     )}
-                    {currentQuestion.para && (
-                      currentQuestion.para
-                    )}
+                    {currentQuestion.para && currentQuestion.para}
                   </>
                 )}
               </div>
@@ -664,7 +696,10 @@ export default function AuthSignUp() {
               <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
                 {/* <form> */}
                 <div className="border-b border-gray-300 relative">
-                  <button className="absolute top-[40%] left-[30px]" onClick={handleBack}>
+                  <button
+                    className="absolute top-[40%] left-[30px]"
+                    onClick={handleBack}
+                  >
                     {" "}
                     <BackArrow />
                   </button>{" "}
@@ -706,7 +741,8 @@ export default function AuthSignUp() {
                   <Font2 className="pt-2 text-[#666666] text-start">
                     <span>By proceeding you agree to the </span>{" "}
                     <span className="text-[#ff6f61]">Term of Serivce</span> &{" "}
-                    <br /> <span className="text-[#ff6f61]">Privacy Policy</span>
+                    <br />{" "}
+                    <span className="text-[#ff6f61]">Privacy Policy</span>
                   </Font2>
                 </div>
                 {/* </form> */}
@@ -718,7 +754,10 @@ export default function AuthSignUp() {
             <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
               {/* <form> */}
               <div className="border-b border-gray-300 relative">
-                <button className="absolute top-[40%] left-[30px]" onClick={handleBack}>
+                <button
+                  className="absolute top-[40%] left-[30px]"
+                  onClick={handleBack}
+                >
                   {" "}
                   <BackArrow />
                 </button>{" "}
@@ -785,25 +824,22 @@ export default function AuthSignUp() {
                   </span>{" "}
                   <span
                     className="text-[#ff6f61]"
-                  // onClick={() => {
-                  //   navigate("/auth/sign-in");
-                  // }}
-
+                    // onClick={() => {
+                    //   navigate("/auth/sign-in");
+                    // }}
                   >
                     Login
                   </span>
                 </Font2>
                 <Font2 className="pt-2 text-[#666666] text-start">
                   <span>By proceeding you agree to the </span>{" "}
-                  <span className="text-[#ff6f61]">Term of Serivce</span> & <br />{" "}
-                  <span className="text-[#ff6f61]">Privacy Policy</span>
+                  <span className="text-[#ff6f61]">Term of Serivce</span> &{" "}
+                  <br /> <span className="text-[#ff6f61]">Privacy Policy</span>
                 </Font2>
               </div>
               {/* </form> */}
             </div>
           )}
-
-
         </div>
         <Toast
           message={toast.message}
