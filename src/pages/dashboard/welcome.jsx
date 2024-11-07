@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import AuthBg from "@/assets/auth/auth-bg.png";
 import { H6, H1 } from "@/config/typography";
-import Img from "../../assets/dashboard/welcome/welcome-bg.png";
+import Img from "@/assets/dashboard/welcome/welcome-bg.png";
 import { Logo } from "@/assets";
-import Button from "../../component/dashboard/button";
+import Button from "@/component/dashboard/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import Toast from "@/component/common/toast";
 import { useSelector } from "react-redux";

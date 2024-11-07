@@ -1,5 +1,5 @@
 // import React, { useState } from 'react';
-// import { Post } from '../../config/api-method';
+// import { Post } from '@/config/api-method';
 
 // export default function ChatBot() {
 //     const [isOpen, setIsOpen] = useState(false); // State to track chatbox visibility
@@ -139,7 +139,7 @@
 // }
 
 import React, { useState } from "react";
-import { Post } from "../../config/api-method";
+import { Post } from "@/config/api-method";
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false); // State to track chatbox visibility

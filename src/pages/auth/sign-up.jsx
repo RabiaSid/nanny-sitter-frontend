@@ -13,12 +13,12 @@ import { useNavigate } from "react-router-dom";
 import Toast from "@/component/common/toast";
 import { Post } from "@/config/api-method";
 import { BackArrow } from "@/config/app-constant";
-import icon from "../../assets/common-icon/google-icon.png";
-import imgbaby from "../../assets/auth/outline.png";
-import TextArea from "../../component/common/textarea";
-import { storeData } from "../../config/helper";
+import icon from "@/assets/common-icon/google-icon.png";
+import imgbaby from "@/assets/auth/outline.png";
+import TextArea from "@/component/common/textarea";
+import { storeData } from "@/config/helper";
 import { useDispatch } from "react-redux";
-import { add } from "../../redux/reducers/userSlice";
+import { add } from "@/redux/reducers/userSlice";
 
 // Array of nanny questions
 const nanny = [
@@ -119,7 +119,7 @@ const nanny = [
     para: (
       <div>
         <p className="py-2 border-b-2 ">
-          The average cost of a nanny in your city is $19.96 per hour.
+          The average cost of a nanny in your city is $23 per hour.
         </p>
         <p className="py-2">
           You can update this information anytime on your Top Nanny Sitter
@@ -201,15 +201,15 @@ const user = [
   //   label: "Enter number of children",
   // },
 
-  {
-    title: "Are you sharing a nanny?",
-    type: "radio",
-    key: "sharingNanny",
-    options: [
-      { label: "Yes", value: "yes" },
-      { label: "No", value: "no" },
-    ],
-  },
+  // {
+  //   title: "Are you sharing a nanny?",
+  //   type: "radio",
+  //   key: "sharingNanny",
+  //   options: [
+  //     { label: "Yes", value: "yes" },
+  //     { label: "No", value: "no" },
+  //   ],
+  // },
   {
     title: "What type of child care are you looking for?",
     type: "radio",
@@ -459,8 +459,8 @@ export default function AuthSignUp() {
       return;
     }
 
-    model.isActive = true; // Ensure model has this property set
-    model.id = 1; // Ensure model has this property set
+    model.isActive = true;
+    model.id = 1;
 
     console.log("Model being sent:", { ...model }); // Log the model
 
@@ -476,7 +476,7 @@ export default function AuthSignUp() {
           // Adjusted dispatch to directly use the user data from the response
           dispatch(add(res.data)); // Assuming the user details are directly in res.data
           storeData("token", res.data.token);
-          navigate("/welcome-dashboard", { state: { loggedIn: true } });
+          navigate("/package", { state: { loggedIn: true } });
         })
         .catch((err) => {
           console.error(err.response ? err.response.data : err.message); // More detailed error logging

@@ -1,11 +1,8 @@
-
-
 import React from "react";
 import { Logo } from "@/assets";
-import { Search } from "../../config/app-constant";
+import { Search } from "@/config/app-constant";
 
 export default function RequestHeader() {
-
   return (
     <>
       <header>
@@ -27,17 +24,12 @@ export default function RequestHeader() {
             </div>
             <div className="flex items-center ">
               <button className="px-4 xl:px-8 py-3 border-none text-white rounded-[25px] me-2 flex bg-[#ff6f61]">
-                <a href="/request">
-                  Submint Request
-                </a>
+                <a href="/request">Submint Request</a>
               </button>
-
             </div>
           </div>
         </nav>
       </header>
-
     </>
   );
 }
-

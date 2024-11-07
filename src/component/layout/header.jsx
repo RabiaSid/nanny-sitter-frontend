@@ -51,12 +51,14 @@ export default function Header() {
                     <Font1>For Nannies</Font1>
                   </a>
                 </li>
-                <li>
+                {/* <li>
                   <a href="/nanny-share">
                     <Font1>Nanny Share</Font1>
                   </a>
-                </li>
-                <li ref={dropdownRef}> {/* Attach the ref here */}
+                </li> */}
+                <li ref={dropdownRef}>
+                  {" "}
+                  {/* Attach the ref here */}
                   <button
                     className="bg-transparent focus:outline-none flex items-center"
                     type="button"
@@ -135,11 +137,7 @@ export default function Header() {
                 <a href="/help">Help</a>
               </button>
               <div className="text-center block lg:hidden">
-                <button
-                  className=""
-                  type="button"
-                  onClick={toggleSidebar}
-                >
+                <button className="" type="button" onClick={toggleSidebar}>
                   <img src={Menu} />
                 </button>
               </div>
@@ -185,14 +183,20 @@ export default function Header() {
           <div className="justify-between items-center w-full lg:flex lg:w-auto relative">
             <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0 gap-y-4">
               <li>
-                <Font1>For Families</Font1>
+                <a href="/">
+                  <Font1>For Families</Font1>
+                </a>
               </li>
               <li>
-                <Font1>For Nannies</Font1>
+                <a href="/for-nannies">
+                  <Font1>For Nannies</Font1>
+                </a>
               </li>
-              <li>
-                <Font1>Nanny Share</Font1>
-              </li>
+              {/* <li>
+                  <a href="/nanny-share">
+                    <Font1>Nanny Share</Font1>
+                  </a>
+                </li> */}
               <li>
                 <button
                   className="bg-transparent focus:outline-none flex items-center"
@@ -225,7 +229,7 @@ export default function Header() {
                     <ul className="py-2 text-sm text-gray-700 ">
                       <li>
                         <a
-                          href="#"
+                          href="/service/nanny-payroll/"
                           className="block px-4 py-2 hover:text-red-400 "
                         >
                           <Font2>Nanny Payroll</Font2>
@@ -233,7 +237,7 @@ export default function Header() {
                       </li>
                       <li>
                         <a
-                          href="#"
+                          href="/service/nanny-background-check"
                           className="block px-4 py-2 hover:text-red-400 "
                         >
                           <Font2>Nanny Background Check</Font2>
@@ -241,7 +245,7 @@ export default function Header() {
                       </li>
                       <li>
                         <a
-                          href="#"
+                          href="/service/nanny-contracts"
                           className="block px-4 py-2 hover:text-red-400 "
                         >
                           <Font2>Nanny Contracts</Font2>
@@ -249,7 +253,7 @@ export default function Header() {
                       </li>
                       <li>
                         <a
-                          href="#"
+                          href="/service/nanny-plus-member"
                           className="block px-4 py-2 hover:text-red-400 "
                         >
                           <Font2>Nanny Plus Membership</Font2>

@@ -8,19 +8,58 @@ import IconHeader3 from "@/assets/dashboard/header-icon/icon-3.png";
 import IconHeader4 from "@/assets/dashboard/header-icon/icon-4.png";
 import profileIcon from "@/assets/dashboard/header-icon/user-icon.png";
 import upload from "@/assets/dashboard/header-icon/upload.png";
-import profile from "@/assets/dashboard/header-icon/user.png";
 import edit from "@/assets/dashboard/header-icon/edit.png";
-import { removeData } from "../../config/helper";
+import { removeData } from "@/config/helper";
 import InputField from "@/component/common/input";
-import FileUpload from "../common/upload";
-import TextArea from "../common/textarea";
-import { Close } from "../../config/app-constant";
-import Dropdown from "@/component/common/dropdown";
-import { Put } from "../../config/api-method";
-import { add } from "../../redux/reducers/userSlice";
+import FileUpload from "@/component/common/upload";
+import TextArea from "@/component/common/textarea";
+import { Close } from "@/config/app-constant";
+import { Put } from "@/config/api-method";
+import { add } from "@/redux/reducers/userSlice";
 import Toast from "@/component/common/toast";
+import Table from "@/component/common/table";
+
+const cols = [
+  { heading: "ID", key: "id" },
+  { heading: "Nanny Name", key: "nannyName" },
+  { heading: "Email", key: "email" },
+  { heading: "Service Type", key: "serviceType" },
+  { heading: "Status", key: "status" },
+];
+const datasource = [
+  {
+    id: 1,
+    nannyName: "John Doe",
+    email: "john@example.com",
+    serviceType: "full-time",
+    status: <span className="text-green-800 font-bold">pending</span>,
+  },
+  {
+    id: 2,
+    nannyName: "Jane Smith",
+    email: "jane@example.com",
+    serviceType: "full-time",
+    status: <span className="text-green-800 font-bold">pending</span>,
+  },
+  {
+    id: 3,
+    nannyName: "Sam Brown",
+    email: "sam@example.com",
+    serviceType: "full-time",
+    status: <span className="text-sky-800 font-bold">Approved</span>,
+  },
+  {
+    id: 4,
+    nannyName: "Lisa White",
+    email: "lisa@example.com",
+    serviceType: "full-time",
+    status: <span className="text-red-800 font-bold">Rejected</span>,
+  },
+];
 
 export default function DashboardHeader({ children, onClickSearch }) {
+  const [requestModelOpen, setRequestModelOpen] = useState(false);
+  const requestModalRef = useRef(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const dropdownRef = useRef(null);
@@ -94,6 +133,22 @@ export default function DashboardHeader({ children, onClickSearch }) {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setModalOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        requestModalRef.current &&
+        !requestModalRef.current.contains(event.target)
+      ) {
         setModalOpen(false);
       }
     };
@@ -195,6 +250,10 @@ export default function DashboardHeader({ children, onClickSearch }) {
       });
   };
 
+  const handleRequestModal = () => {
+    setRequestModelOpen(true);
+  };
+
   return (
     <>
       <header>
@@ -244,14 +303,17 @@ export default function DashboardHeader({ children, onClickSearch }) {
                 />
                 <span className="hidden sm:block">Conversations</span>
               </button>
-              <button className="text-black mx-4 flex flex-col items-center text-center">
+              <button
+                className="text-black mx-4 flex flex-col items-center text-center"
+                onClick={handleRequestModal}
+              >
                 <img
                   src={IconHeader3}
                   width="25px"
                   height="25px"
                   className="mb-1"
                 />
-                <span className="hidden sm:block">Plus</span>
+                <span className="hidden sm:block">Request</span>
               </button>
               <button
                 className="text-black mx-4 flex flex-col items-center text-center relative"
@@ -558,6 +620,17 @@ export default function DashboardHeader({ children, onClickSearch }) {
             >
               <Close />
             </button>
+          </div>
+        </div>
+      )}
+
+      {requestModelOpen && (
+        <div
+          id="static-modal"
+          className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg "
+        >
+          <div className="p-4 rounded-md h-[450px]" ref={requestModalRef}>
+            <Table datasource={datasource} cols={cols} />
           </div>
         </div>
       )}

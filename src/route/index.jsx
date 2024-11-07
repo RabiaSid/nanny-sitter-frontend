@@ -2,21 +2,22 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ForFamily from "@/pages/for-family.jsx";
-import ForNannies from "../pages/for-nannies";
+import ForNannies from "@/pages/for-nannies";
 import Dashboard from "@/pages/dashboard/dashoard";
 import Help from "@/pages/help/help";
-import NannyPayroll from "../pages/service/nanny-payroll";
-import AuthSignUp from "../pages/auth/sign-up";
-import AuthSignIn from "../pages/auth/sign-in";
-import Welcome from "../pages/dashboard/welcome";
-import NannyShare from "../pages/nanny-share";
-import NannyBackgroundCheck from "../pages/service/nanny-backgroundcheck";
-import NannyContracts from "../pages/service/nanny-contracts";
-import NannyPlusmember from "../pages/service/nanny-plusmember";
-import Request from "../pages/request/request";
-import Packages from "../component/auth/packages/packages";
+import NannyPayroll from "@/pages/service/nanny-payroll";
+import AuthSignUp from "@/pages/auth/sign-up";
+import AuthSignIn from "@/pages/auth/sign-in";
+import Welcome from "@/pages/dashboard/welcome";
+import NannyShare from "@/pages/nanny-share";
+import NannyBackgroundCheck from "@/pages/service/nanny-backgroundcheck";
+import NannyContracts from "@/pages/service/nanny-contracts";
+import NannyPlusmember from "@/pages/service/nanny-plusmember";
+import Request from "@/pages/request/request";
+import Packages from "@/component/auth/packages/packages";
 import { useSelector } from "react-redux";
-import NotFound from "../pages/not-found";
+import NotFound from "@/pages/not-found";
+import PaymentGateway from "../component/auth/payment-gateway";
 
 export default function AppRoutes() {
   const isActive = useSelector((state) => state?.user?.isActive);
@@ -41,6 +42,7 @@ export default function AppRoutes() {
         <Route path="/help" element={<Help />} />
         <Route path="/request" element={<Request />} />
         <Route path="/package" element={<Packages />} />
+        <Route path="/payment-gateway" element={<PaymentGateway />} />
         <Route path="/auth/sign-in" element={<AuthSignIn />} />
         <Route path="/auth/sign-up" element={<AuthSignUp />} />
         {/* <Route path="/dashboard/*" element={<Dashboard />} /> */}

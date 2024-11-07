@@ -7,10 +7,10 @@ import { useNavigate } from "react-router-dom";
 import Toast from "@/component/common/toast";
 import { Post } from "@/config/api-method";
 import { BackArrow } from "@/config/app-constant";
-import line from "../../assets/auth/horizental.png";
-import { storeData } from "../../config/helper";
+import line from "@/assets/auth/horizental.png";
+import { storeData } from "@/config/helper";
 import { useDispatch } from "react-redux";
-import { add } from "../../redux/reducers/userSlice";
+import { add } from "@/redux/reducers/userSlice";
 
 export default function AuthSignIn() {
   const dispatch = useDispatch();
