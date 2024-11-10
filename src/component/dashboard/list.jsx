@@ -1,8 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import profile from "@/assets/dashboard/list/profile.png";
 import { H1, H5, Font2 } from "@/config/typography";
+import { useSelector } from "react-redux";
 
-export default function List({ children, firstName, email, budget }) {
+export default function List({
+  children,
+  firstName,
+  email,
+  budget,
+  serviceType,
+  region,
+}) {
+  const userData = useSelector((state) => state.user);
+  // console.log("User logged in: 22222", userData);
+  // console.log(userData.role);
   return (
     <>
       {/* <div className="pb-[70px] py-[30px]">
@@ -13,7 +24,16 @@ export default function List({ children, firstName, email, budget }) {
         <H5 className="mt-6 mb-2 font-normal">{firstName}</H5>
         <Font2 className="text-[#000] mb-2">{email}</Font2>
         <Font2 className="text-[#000] mb-2">
-          <span>{budget}/hr</span> | <span>3 years experience</span>
+          <span>
+            {
+              userData.role === "nanny" ? region : budget
+              // <span>{serviceType}</span> | <span>{region}</span>
+            }
+            {/* {
+              userData.role === "user" && 
+              // <span>{budget}/hr</span>
+            } */}
+          </span>
         </Font2>
         {children}
         {/* <button

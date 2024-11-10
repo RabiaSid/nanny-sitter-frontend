@@ -427,7 +427,6 @@ export default function AuthSignUp() {
                   setIsShow(true);
                 }
               }}
-              className="input-class"
             />
             {isShow === true && (
               <Button
@@ -754,13 +753,13 @@ export default function AuthSignUp() {
             <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
               {/* <form> */}
               <div className="border-b border-gray-300 relative">
-                <button
+                {/* <button
                   className="absolute top-[40%] left-[30px]"
                   onClick={handleBack}
                 >
                   {" "}
                   <BackArrow />
-                </button>{" "}
+                </button>{" "} */}
                 <H6 className=" mb-2 xl:mb-3 text-center py-3 capitalize ">
                   sign up
                 </H6>

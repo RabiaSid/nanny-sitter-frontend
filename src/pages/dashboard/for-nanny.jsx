@@ -12,7 +12,7 @@ import icon1 from "@/assets/dashboard/model-icon/1.png";
 import icon2 from "@/assets/dashboard/model-icon/2.png";
 import icon3 from "@/assets/dashboard/model-icon/3.png";
 import icon4 from "@/assets/dashboard/model-icon/4.png";
-import icon5 from "@/assets/dashboard/model-icon/5.png";
+import icon24 from "@/assets/dashboard/model-icon/24.png";
 import icon6 from "@/assets/dashboard/model-icon/6.png";
 import icon7 from "@/assets/dashboard/model-icon/7.png";
 import icon8 from "@/assets/dashboard/model-icon/8.png";
@@ -32,6 +32,7 @@ import icon22 from "@/assets/dashboard/model-icon/22.png";
 import TextArea from "@/component/common/textarea";
 import profile from "@/assets/dashboard/list/profile.png";
 import { H1, H5, Font2 } from "@/config/typography";
+import FormatLastSeen from "../../component/common/date-format";
 
 export default function ForNanny() {
   const navigate = useNavigate();
@@ -52,6 +53,8 @@ export default function ForNanny() {
         console.error("Error fetching data:", err);
       });
   };
+
+  console.log(listData);
 
   const getDataById = (id) => {
     Get(`/auth/${id}`)
@@ -137,7 +140,8 @@ export default function ForNanny() {
                     key={x._id}
                     firstName={x.firstName}
                     email={x.email}
-                    budget={x.budget}
+                    serviceType={x?.serviceType}
+                    region={x?.region}
                     getDataById={getDataById}
                     modalData={modalData}
                   >
@@ -160,7 +164,8 @@ export default function ForNanny() {
                     key={x._id}
                     firstName={x.firstName}
                     email={x.email}
-                    budget={x.budget}
+                    serviceType={x?.serviceType}
+                    region={x?.region}
                     getDataById={getDataById}
                     modalData={modalData}
                   >
@@ -187,7 +192,7 @@ export default function ForNanny() {
             className="p-4 w-full max-w-2xl max-h-full rounded-md relative"
             ref={modalRef}
           >
-            <div className="bg-white p-4 rounded-md shadow-md border   overflow-y-scroll  h-[750px] z-0">
+            <div className="bg-white p-4 rounded-md shadow-md border   overflow-y-scroll  h-[820px] z-0">
               <div className="flex flex-col items-center mb-2 text-center">
                 <div className="h-[95px] w-[95px] relative">
                   <img src={profile} alt="Profile" />
@@ -206,112 +211,60 @@ export default function ForNanny() {
                   Featured Profile with PLUS
                 </h3>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex gap-8">
                 <div className="flex items-center pt-3">
                   <img src={icon2} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">Active a day ago</p>
-                </div>
-                <div className="flex items-center pt-3">
-                  <img src={icon3} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">Responds within a day</p>
-                </div>
-                <div className="flex items-center pt-3">
-                  <img src={icon4} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">Denver</p>
-                </div>
-                <div className="flex items-center pb-3">
-                  <img src={icon2} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">Active a day ago</p>
-                </div>
-                <div className="flex items-center pb-3">
-                  <img src={icon3} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">Responds within a day</p>
-                </div>
-                <div className="flex items-center pb-3">
-                  <img src={icon4} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">Denver</p>
-                </div>
-              </div>
-
-              <h3 className="text-lg font-bold "> A little bit about us...</h3>
-              <p className="text-gray-800 my-2">
-                I am a very active gram to 7. Last yr was aid on school bus.
-                This yr an Education Aid (paraprofessional) at a middle n
-                elementary schools in the same district.
-              </p>
-              <p className="text-gray-600 mb-4 pb-2 border-b">
-                I am crazy about children and understand the need for calm help
-                in this crazy hectic world we live in. Excellent cook, baker,
-                cleaner and "let's go to the park" person. Love animals.
-              </p>
-              <h3 className="text-lg font-bold ">Looking For</h3>
-              <p className="text-gray-800 my-2">Availability</p>
-              <div className="flex justify-between">
-                <div className="flex items-center">
-                  <img src={icon5} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Start: ASAP</p>
-                </div>
-                <div className="flex items-center">
-                  <img src={icon6} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">
-                    Weekdays 08:00AM - 5:00 PM
+                  <p className="ml-2 text-gray-600">
+                    <FormatLastSeen date={modalData?.lastSeen} />
                   </p>
                 </div>
-                <div className="flex items-center">
-                  <img src={icon7} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Live Out</p>
+                <div className="flex items-center pt-3">
+                  <img src={icon3} className="h-[18px]" />
+                  <p className="ml-2 text-gray-600">Responds within a day</p>
                 </div>
-                <div className="flex items-center">
-                  <img src={icon8} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Full Time (nanny)</p>
-                </div>
-              </div>
-
-              <p className="text-gray-800 my-2">Availability</p>
-              <div className="flex justify-between border-b pb-2">
-                <div className="flex items-center">
-                  <img src={icon9} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Infants</p>
-                </div>
-                <div className="flex items-center">
-                  <img src={icon10} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Toddlers</p>
-                </div>
-                <div className="flex items-center">
-                  <img src={icon11} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Preschoolers</p>
-                </div>
-                <div className="flex items-center">
-                  <img src={icon12} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Grade-schoolers</p>
+                <div className="flex items-center pt-3">
+                  <img src={icon4} className="h-[18px]" />
+                  <p className="ml-2 text-gray-600">{modalData?.region}</p>
                 </div>
               </div>
 
-              <h3 className="text-lg font-bold mt-4">Qualifications</h3>
-              <p className="text-gray-800 my-2">Certification</p>
-              <div className="flex justify-start">
-                <div className="flex items-center ">
-                  <img src={icon13} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Driver’s License</p>
+              <h3 className="text-lg font-bold mt-2">Job Describtion</h3>
+              <p className="text-gray-800 my-1">
+                {modalData?.parentJobDescription}
+              </p>
+              <h3 className="text-lg font-bold border-t pt-3">Information</h3>
+              <div className="grid grid-cols-12 gap-4">
+                <div className="col-span-7">
+                  <p className="text-gray-800 my-1 font-semibold">Personal</p>
+                  <div className="flex justify-start gap-4">
+                    <div className="flex items-center">
+                      <img src={icon13} className="h-[22px] pe-1" />
+                      <p className="text-gray-600 ml-1">
+                        {modalData?.firstName} {modalData?.lastName}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <img src={icon24} className="h-[22px] pe-1" />
+                      <p className="text-gray-600 ml-1">{modalData?.email}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center ml-6">
-                  <img src={icon15} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">CPR</p>
-                </div>
-                <div className="flex items-center ml-6">
-                  <img src={icon16} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">First Aid Kit</p>
-                </div>
-              </div>
-              <p className="text-gray-800 my-2">Fluent Languages</p>
-              <div className="flex justify-between pb-2">
-                <div className="flex items-center">
-                  <img src={icon17} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">English</p>
+                <div className="col-span-5">
+                  <p className="text-gray-800 my-1 font-semibold">
+                    Service Type
+                  </p>
+                  <div className="flex justify-start">
+                    <div className="flex items-center ">
+                      <img src={icon8} className="h-[18px]" />
+                      <p className="text-gray-600 ml-1">
+                        {modalData?.serviceType}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="my-4">
+              <div className="mt-8 mb-4">
                 <TextArea
                   type="text"
                   label="Message"

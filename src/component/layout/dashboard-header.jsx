@@ -14,50 +14,55 @@ import InputField from "@/component/common/input";
 import FileUpload from "@/component/common/upload";
 import TextArea from "@/component/common/textarea";
 import { Close } from "@/config/app-constant";
-import { Put } from "@/config/api-method";
+import { Put, Get } from "@/config/api-method";
 import { add } from "@/redux/reducers/userSlice";
 import Toast from "@/component/common/toast";
 import Table from "@/component/common/table";
+import { CgClose } from "react-icons/cg";
+import { HiOutlineDotsVertical } from "react-icons/hi";
 
 const cols = [
-  { heading: "ID", key: "id" },
-  { heading: "Nanny Name", key: "nannyName" },
-  { heading: "Email", key: "email" },
-  { heading: "Service Type", key: "serviceType" },
+  { heading: "Sno", key: "Sno" },
+  { heading: "Location", key: "location" },
+  { heading: "Children Count", key: "childrenCount" },
+  { heading: "Children Ages", key: "childrenAges" },
+  { heading: "Schedule", key: "schedule" },
   { heading: "Status", key: "status" },
+  { heading: "Detail", key: "detail" },
 ];
-const datasource = [
-  {
-    id: 1,
-    nannyName: "John Doe",
-    email: "john@example.com",
-    serviceType: "full-time",
-    status: <span className="text-green-800 font-bold">pending</span>,
-  },
-  {
-    id: 2,
-    nannyName: "Jane Smith",
-    email: "jane@example.com",
-    serviceType: "full-time",
-    status: <span className="text-green-800 font-bold">pending</span>,
-  },
-  {
-    id: 3,
-    nannyName: "Sam Brown",
-    email: "sam@example.com",
-    serviceType: "full-time",
-    status: <span className="text-sky-800 font-bold">Approved</span>,
-  },
-  {
-    id: 4,
-    nannyName: "Lisa White",
-    email: "lisa@example.com",
-    serviceType: "full-time",
-    status: <span className="text-red-800 font-bold">Rejected</span>,
-  },
-];
+// const datasource = [
+//   {
+//     id: 1,
+//     nannyName: "John Doe",
+//     email: "john@example.com",
+//     serviceType: "full-time",
+//     status: <span className="text-green-800 font-bold">pending</span>,
+//   },
+//   {
+//     id: 2,
+//     nannyName: "Jane Smith",
+//     email: "jane@example.com",
+//     serviceType: "full-time",
+//     status: <span className="text-green-800 font-bold">pending</span>,
+//   },
+//   {
+//     id: 3,
+//     nannyName: "Sam Brown",
+//     email: "sam@example.com",
+//     serviceType: "full-time",
+//     status: <span className="text-sky-800 font-bold">Approved</span>,
+//   },
+//   {
+//     id: 4,
+//     nannyName: "Lisa White",
+//     email: "lisa@example.com",
+//     serviceType: "full-time",
+//     status: <span className="text-red-800 font-bold">Rejected</span>,
+//   },
+// ];
 
 export default function DashboardHeader({ children, onClickSearch }) {
+  const [datasource, setDatasource] = useState([]);
   const [requestModelOpen, setRequestModelOpen] = useState(false);
   const requestModalRef = useRef(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -65,6 +70,8 @@ export default function DashboardHeader({ children, onClickSearch }) {
   const dropdownRef = useRef(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const modalRef = useRef(null);
+  const [isSubModalOpen, setSubModalOpen] = useState(false);
+  const subModalRef = useRef(null);
   const [serviceTypedropdown, setServiceTypeDropdown] = useState(false);
   const serviceTypedropdownRef = useRef(null);
   const [shareNannydropdown, setshareNannyDropdown] = useState(false);
@@ -72,7 +79,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
   const [regiondropdown, setRegionDropdown] = useState(false);
   const regiondropdownRef = useRef(null);
   const userData = useSelector((state) => state.user);
-  console.log("User logged in: 22222", userData);
+  // console.log("User logged in: 22222", userData);
   const dispatch = useDispatch();
   const [toast, setToast] = useState({
     isVisible: false,
@@ -231,6 +238,34 @@ export default function DashboardHeader({ children, onClickSearch }) {
     setIsEdit(true);
   };
 
+  // const getData = () => {
+  //   console.log("123456789");
+  //   Get("/booking/all")
+  //     .then((res) => {
+  //       console.log(res?.data);
+  //     })
+  //     .catch((err) => {
+  //       console.log("Error fetching data:", err);
+  //     });
+  // };
+
+  // console.log(listData);
+
+  // const getDataById = (id) => {
+  //   Get(`/auth/${id}`)
+  //     .then((res) => {
+  //       console.log("Fetched nanny data:", res?.data); // Debugging line
+  //       setModalData(res?.data);
+  //     })
+  //     .catch((err) => {
+  //       console.error("Error fetching user data:", err);
+  //     });
+  // };
+
+  // useEffect(() => {
+  //   getData();
+  // }, []);
+
   const save = () => {
     Put(
       "auth",
@@ -254,6 +289,63 @@ export default function DashboardHeader({ children, onClickSearch }) {
     setRequestModelOpen(true);
   };
 
+  const getData = () => {
+    Get("/booking/all")
+      .then((res) => {
+        if (res?.data) {
+          // Format the data as needed for the table
+          const formattedData = res?.data.map((item, index) => ({
+            Sno: index + 1,
+            location: item.location,
+            childrenCount: item.childrenCount,
+            childrenAges: item.childrenAges.join(", "), // Assuming `childrenAges` is an array
+            schedule: item.schedule,
+            status: (
+              <span
+                className={`font-bold ${
+                  item.status === "approved"
+                    ? "text-sky-800"
+                    : item.status === "pending"
+                    ? "text-green-800"
+                    : "text-red-800"
+                }`}
+              >
+                {item.status}
+              </span>
+            ),
+            detail: (
+              <button onClick={() => handleSubModel(item._id)}>
+                <HiOutlineDotsVertical />
+              </button>
+            ),
+          }));
+          setDatasource(formattedData);
+        }
+      })
+      .catch((err) => {
+        console.log("Error fetching data:", err);
+      });
+  };
+
+  const getDataById = (id) => {
+    Get(`/booking/${id}`)
+      .then((res) => {
+        console.log("Fetched nanny data: 123", res?.data); // Debugging line
+      })
+      .catch((err) => {
+        console.error("Error fetching user data:", err);
+      });
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const handleSubModel = (id) => {
+    getDataById(id);
+    setSubModalOpen(true);
+  };
+
   return (
     <>
       <header>
@@ -267,12 +359,11 @@ export default function DashboardHeader({ children, onClickSearch }) {
               id="mobile-menu-2"
             >
               <ul className="flex flex-col font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                {userData.role === "nanny" && (
+                {userData.role === "nanny" ? (
                   <li className="underline-animation">
                     <Font1>For Families</Font1>
                   </li>
-                )}
-                {userData.role === "user" && (
+                ) : (
                   <li className="underline-animation">
                     <Font1>For Nannies</Font1>
                   </li>
@@ -612,14 +703,13 @@ export default function DashboardHeader({ children, onClickSearch }) {
                 w-full focus:outline-none "
                 />
               </div>
+              <button
+                onClick={handleCloseModal}
+                className="absolute top-[-15px] left-[-15px]"
+              >
+                <Close />
+              </button>
             </div>
-
-            <button
-              onClick={handleCloseModal}
-              className="absolute top-[-15px] left-[-15px]"
-            >
-              <Close />
-            </button>
           </div>
         </div>
       )}
@@ -629,8 +719,38 @@ export default function DashboardHeader({ children, onClickSearch }) {
           id="static-modal"
           className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg "
         >
-          <div className="p-4 rounded-md h-[450px]" ref={requestModalRef}>
+          <div className="p-4 rounded-md relative" ref={requestModalRef}>
             <Table datasource={datasource} cols={cols} />
+            <div className="absolute top-[-3px] right-[-3px] bg-gray-950 rounded-full p-2">
+              <CgClose
+                size={24}
+                color="#fff"
+                onClick={() => {
+                  setRequestModelOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSubModalOpen && (
+        <div
+          id="static-modal"
+          className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
+        >
+          <div
+            className="p-4 w-full max-w-[55%] max-h-full rounded-md"
+            ref={subModalRef}
+          >
+            <div className="bg-white px-8 rounded-md shadow-md border h-[750px] z-0 flex flex-col justify-center relative">
+              <button
+                onClick={() => setSubModalOpen(false)}
+                className="absolute top-[-25px] left-[-25px]"
+              >
+                <Close />
+              </button>
+            </div>
           </div>
         </div>
       )}
