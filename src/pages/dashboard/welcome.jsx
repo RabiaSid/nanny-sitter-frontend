@@ -42,7 +42,7 @@ export default function Welcome() {
 
   return (
     <div
-      className="py-[30px] md:py-[50px] lg:py-[100px] h-[100dvh] relative"
+      className="py-[30px] h-[100dvh] relative"
       style={{ background: `url(${AuthBg}) 100% 100% / cover no-repeat` }}
     >
       <div className="container m-auto">
@@ -55,7 +55,7 @@ export default function Welcome() {
                 <strong className="text-[#FF6F61]"> Nanny Sitter</strong>
               </H1>
               <Button
-                className="w-[95%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] focus:outline-none"
+                className="w-[95%] rounded-[35px] py-1 px-6 bg-[#FF6F61] text-white text-[22px] focus:outline-none"
                 onClick={handleRoute}
                 // onClick={() => navigate("/dashboard/for-family")}
               >
@@ -65,7 +65,7 @@ export default function Welcome() {
             <div className="lg:col-span-6 hidden lg:block">
               <img
                 src={Img}
-                className="max-w-[400px] xl:max-w-[550px] mx-auto"
+                className="max-w-[300px] xl:max-w-[350px] mx-auto"
               />
             </div>
           </div>

@@ -6,7 +6,7 @@ export default function Radiobutton(props) {
 
   return btnField ? (
     <div className="group">
-      <div className="m-4 p-4 rounded-full border border-gray-300">
+      <div className="m-4 px-4 py-2 rounded-full border border-gray-300">
         <input
           type="radio"
           id={id}
@@ -33,8 +33,12 @@ export default function Radiobutton(props) {
           ) : (
             <span
               className={`border rounded-full mr-2 w-6 h-6 flex items-center justify-center 
-                transition-colors duration-300 ease-in-out 
-                ${checked ? "border-[#FF6F61]" : "border-gray-300"} 
+                  
+                ${
+                  checked
+                    ? "border-[#FF6F61] duration-300 ease-in"
+                    : "border-gray-300 duration-300 ease-out"
+                } 
                 hover:border-[#FF6F61]`}
             >
               {checked ? (
@@ -66,7 +70,7 @@ export default function Radiobutton(props) {
   ) : (
     <div className="group">
       <div
-        className={`m-4 p-4 rounded-full transition-all duration-300 ease-in-out 
+        className={`m-4 px-4 py-2 rounded-full transition-all duration-300 ease-in-out 
                     ${checked ? "bg-[#FF6F61]" : "border border-gray-300"} 
                     group-hover:bg-[#FF6F61] group-hover:border-none`}
       >
@@ -83,8 +87,12 @@ export default function Radiobutton(props) {
         <label
           htmlFor={id}
           className={`flex items-center cursor-pointer text-lg font-normal 
-                        transition-all duration-300 ease-in-out
-                        ${checked ? "text-white" : "text-gray-600"} 
+                        transition-all
+                        ${
+                          checked
+                            ? "text-white duration-300 ease-in"
+                            : "text-gray-600 duration-300 ease-out"
+                        } 
                         group-hover:text-white`}
         >
           <span

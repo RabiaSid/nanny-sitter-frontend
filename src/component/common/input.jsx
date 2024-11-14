@@ -25,7 +25,7 @@ export default function InputField(props) {
         className={
           inputClass
             ? inputClass
-            : `bg-transparent my-4 px-6 py-4 rounded-full border-gray-300 border
+            : `bg-transparent my-4 px-6 py-3 rounded-full border-gray-300 border
                      text-gray-900 text-sm  block w-full 
                       focus:outline-none`
         }

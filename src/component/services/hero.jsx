@@ -5,7 +5,7 @@ import { H1, H6, Font1 } from "@/config/typography";
 
 export default function Hero({ data }) {
   return (
-    <div className="py-[30px] md:py-[50px] lg:py-[100px]">
+    <div className="py-[30px] md:py-[50px] ">
       <div className="container mx-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8">
           <div className="mb-4 ">

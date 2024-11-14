@@ -1,74 +1,72 @@
 export function H1({ className = "", children }) {
   const defaultClasses =
-    "font-[400] leading-[45px] text-[35px] md:leading-[55px] md:text-[45px] lg:leading-[65px] lg:text-[55px] 2xl:leading-[75px] 2xl:text-[65px]";
+    "font-[400] leading-[40px] text-[30px] md:leading-[50px] md:text-[40px] lg:leading-[60px] lg:text-[50px] 2xl:leading-[70px] 2xl:text-[60px]";
 
   return <h1 className={`${defaultClasses} ${className}`}>{children}</h1>;
 }
 
 export function H2({ className = "", children }) {
   const defaultClasses =
-    "font-[400] leading-[40px] text-[30px] md:leading-[50px] md:text-[40px] lg:leading-[60px] lg:text-[50px] 2xl:leading-[75px] 2xl:text-[65px]";
+    "font-[400] leading-[35px] text-[25px] md:leading-[45px] md:text-[35px] lg:leading-[55px] lg:text-[45px] 2xl:leading-[70px] 2xl:text-[60px]";
 
   return <h2 className={`${defaultClasses} ${className}`}>{children}</h2>;
 }
 
 export function H3({ className = "", children }) {
   const defaultClasses =
-    "font-[400] leading-[30px] text-[20px] md:leading-[40px] md:text-[30px] lg:leading-[50px] lg:text-[40px] 2xl:leading-[65px] 2xl:text-[55px]";
+    "font-[400] leading-[25px] text-[15px] md:leading-[35px] md:text-[25px] lg:leading-[45px] lg:text-[35px] 2xl:leading-[60px] 2xl:text-[50px]";
 
   return <h3 className={`${defaultClasses} ${className}`}>{children}</h3>;
 }
 
 export function H4({ className = "", children }) {
   const defaultClasses =
-    "font-[400] leading-[30px] text-[20px]  sm:leading-[15px] sm:text-[25px] lg:leading-[40px] lg:text-[30px] font-[500]";
+    "font-[400] leading-[25px] text-[15px]  sm:leading-[10px] sm:text-[20px] lg:leading-[35px] lg:text-[25px] font-[500]";
 
   return <h4 className={`${defaultClasses} ${className}`}>{children}</h4>;
 }
 
 export function H5({ className = "", children }) {
   const defaultClasses =
-    "font-[400] leading-[28px] text-[18px]  sm:leading-[30px] sm:text-[20px] lg:leading-[35px] lg:text-[25px] font-[500]";
+    "font-[400] leading-[23px] text-[13px]  sm:leading-[25px] sm:text-[15px] lg:leading-[30px] lg:text-[20px] font-[500]";
 
   return <h5 className={`${defaultClasses} ${className}`}>{children}</h5>;
 }
 
 export function H6({ className = "", children }) {
   const defaultClasses =
-    "font-[400]  xl:leading-[15px] xl:text-[25px] 2xl:leading-[40px] 2xl:text-[30px] font-[500]";
+    "font-[400] xl:leading-[10px] xl:text-[20px] 2xl:leading=[35px] 2xl:text=[25px] font-[500]";
 
   return <h1 className={`${defaultClasses} ${className}`}>{children}</h1>;
 }
 
 export function Font1({ className = "", children }) {
   const defaultClasses =
-    "leading-[28px] text-[18px] sm:leading-[30px] sm:text-[20px] lg:leading-[34px] lg:text-[24px] ";
+    "leading-[23px] text-[13px] sm:leading-[25px] sm:text-[15px] lg:leading-[29px] lg:text-[19px]";
 
   return <p className={`${defaultClasses} ${className}`}>{children}</p>;
 }
 
 export function Font2({ className = "", children }) {
   const defaultClasses =
-    " font-normal leading-[24px] text-[16px] xl:leading-[26px] md:text-[18px] ";
+    " font-normal leading-[19px] text-[11px] xl:leading-[21px] md:text-[13px]";
 
   return <p className={`${defaultClasses} ${className}`}>{children}</p>;
 }
 
 export function Font3({ className = "", children }) {
   const defaultClasses =
-    "font-normal leading-[28px] text-[18px] md:leading-[30px] md:text-[20px] font-semibold";
+    "font-normal leading-[23px] text-[13px] md:leading-[25px] md:text-[15px] font-semibold";
 
   return <p className={`${defaultClasses} ${className}`}>{children}</p>;
 }
 
 export function A({ className = "", children }) {
   const defaultClasses =
-    "font-normal leading-[26px] text-[16px] md:leading-[28px] md:text-[18px] font-semibold";
+    "font-normal leading-[21px] text-[11px] md:leading-[23px] md:text-[13px] font-semibold";
 
   return <a className={`${defaultClasses} ${className}`}>{children}</a>;
 }
-
-
 
 // export function H2({ className = '', children }) {
 //   const defaultClasses =

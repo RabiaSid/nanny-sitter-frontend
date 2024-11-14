@@ -13,11 +13,10 @@ export function FaceBook() {
 }
 export function Close() {
   return (
-
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="50"
-      height="50"
+      width="40"
+      height="40"
       fill="none"
       viewBox="0 0 76 76"
     >
@@ -29,8 +28,7 @@ export function Close() {
         d="M27 49l22-22m-22 0l22 22"
       ></path>
     </svg>
-
-  )
+  );
 }
 
 export function Search() {
@@ -51,7 +49,7 @@ export function Search() {
         ></path>
       </g>
     </svg>
-  )
+  );
 }
 export function BackArrow() {
   return (
@@ -70,7 +68,7 @@ export function BackArrow() {
         d="M1 8h23M1 8l7.077-7M1 8l7.077 7"
       ></path>
     </svg>
-  )
+  );
 }
 export function QuestionIcon1() {
   return (
@@ -191,5 +189,3 @@ export function QuestionIcon3() {
     </svg>
   );
 }
-
-

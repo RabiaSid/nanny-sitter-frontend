@@ -45,7 +45,6 @@ export default function AppRoutes() {
         <Route path="/payment-gateway" element={<PaymentGateway />} />
         <Route path="/auth/sign-in" element={<AuthSignIn />} />
         <Route path="/auth/sign-up" element={<AuthSignUp />} />
-        {/* <Route path="/dashboard/*" element={<Dashboard />} /> */}
         <Route
           path="/dashboard/*"
           element={isActive === true && <Dashboard />}

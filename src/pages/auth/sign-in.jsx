@@ -74,13 +74,18 @@ export default function AuthSignIn() {
   return (
     <>
       <div
-        className="py-[30px] md:py-[50px] lg:py-[100px] min-h-[100dvh] relative"
+        className=" min-h-[100dvh] relative"
         style={{ background: `url(${AuthBg}) 100% 100% / cover no-repeat` }}
       >
         <div className="flex justify-center items-center m-auto pt-[50px]">
           <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
             <div className="border-b border-gray-300 relative">
-              <button className="absolute top-[40%] left-[30px]">
+              <button
+                className="absolute top-[40%] left-[30px]"
+                onClick={() => {
+                  navigate("/");
+                }}
+              >
                 {" "}
                 <BackArrow />
               </button>{" "}
@@ -129,7 +134,7 @@ export default function AuthSignIn() {
               <Font2 className="pt-4 text-center">
                 <span className="text-[#666666]">Don't have an account? </span>{" "}
                 <span
-                  className="text-[#ff6f61]"
+                  className="text-[#ff6f61] cursor-pointer"
                   onClick={() => {
                     navigate("/auth/sign-up");
                   }}

@@ -107,11 +107,19 @@ export default function ForFamily() {
 
   const handleSearchChange = (e) => {
     const query = e.target.value.toLowerCase();
+
+    if (!query) {
+      // If the input is empty, clear the filterList to show banner and filter
+      setFilterList([]);
+      return;
+    }
+
     const filtered = listData.filter((x) => {
       const firstNameMatch = x.firstName?.toLowerCase().includes(query);
       const budgetMatch = x.budget?.toLowerCase().includes(query);
       return firstNameMatch || budgetMatch;
     });
+
     setFilterList(filtered);
   };
 
@@ -201,9 +209,13 @@ export default function ForFamily() {
           />
         </div>
       </DashboardHeader>
-      <Alert />
-      <Hero />
-      <Filter />
+      {filterList.length > 0 ? null : (
+        <>
+          <Alert />
+          <Hero />
+          <Filter />
+        </>
+      )}
       <div className="pb-[70px] py-[30px]">
         <div className="container mx-auto ">
           <div className="grid grid-cols-3 rounded-md gap-8">
@@ -260,10 +272,10 @@ export default function ForFamily() {
           className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
         >
           <div
-            className="p-4 w-full max-w-2xl max-h-full rounded-md relative"
+            className="p-4 w-full max-h-full rounded-md relative  max-w-[550px]"
             ref={modalRef}
           >
-            <div className="bg-white p-4 rounded-md shadow-md border   overflow-y-scroll  h-[820px] z-0">
+            <div className="bg-white p-4 rounded-md shadow-md border overflow-y-scroll  h-[90vh] z-0 ">
               <div className="flex flex-col items-center mb-2 text-center">
                 <div className="h-[95px] w-[95px] relative">
                   <img src={profile} alt="Profile" />
@@ -350,46 +362,45 @@ export default function ForFamily() {
               </div>
 
               <h3 className="text-lg font-bold mt-2">Requirments</h3>
-              <div className="flex gap-4">
-                <div>
-                  <p className="text-gray-800 my-1 font-semibold">
-                    Certification
-                  </p>
-                  <div className="flex justify-start">
-                    {modalData?.isDrivingLicense && (
-                      <div className="flex items-center ">
-                        <img src={icon18} className="h-[22px]" />
-                        <p className="text-gray-600 ml-1">Driver’s License</p>
-                      </div>
-                    )}
-                    {modalData?.isCPRcertificate && (
-                      <div className="flex items-center ml-6">
-                        <img src={icon16} className="h-[22px]" />
-                        <p className="text-gray-600 ml-1">CPR certificate</p>
-                      </div>
-                    )}
-                    {modalData?.isAIDcertificate && (
-                      <div className="flex items-center ml-6">
-                        <img src={icon17} className="h-[22px]" />
-                        <p className="text-gray-600 ml-1">First Aid Kit</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-gray-800 my-1 font-semibold">
-                    Fluent Languages
-                  </p>
-                  <div className="flex justify-start">
+              <div>
+                <p className="text-gray-800 my-1 font-semibold">
+                  Certification
+                </p>
+                <div className="flex justify-start">
+                  {modalData?.isDrivingLicense && (
                     <div className="flex items-center ">
-                      <img src={icon15} className="h-[22px]" />
-                      <p className="text-gray-600 ml-1 capitalize">
-                        {modalData?.Language}
-                      </p>
+                      <img src={icon18} className="h-[22px]" />
+                      <p className="text-gray-600 ml-1">Driver’s License</p>
                     </div>
+                  )}
+                  {modalData?.isCPRcertificate && (
+                    <div className="flex items-center ml-6">
+                      <img src={icon16} className="h-[22px]" />
+                      <p className="text-gray-600 ml-1">CPR certificate</p>
+                    </div>
+                  )}
+                  {modalData?.isAIDcertificate && (
+                    <div className="flex items-center ml-6">
+                      <img src={icon17} className="h-[22px]" />
+                      <p className="text-gray-600 ml-1">First Aid Kit</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div>
+                <p className="text-gray-800 my-1 font-semibold">
+                  Fluent Languages
+                </p>
+                <div className="flex justify-start">
+                  <div className="flex items-center ">
+                    <img src={icon15} className="h-[22px]" />
+                    <p className="text-gray-600 ml-1 capitalize">
+                      {modalData?.Language}
+                    </p>
                   </div>
                 </div>
               </div>
+
               <p className="text-gray-800 my-1 font-semibold">Other</p>
               <div className="flex justify-start gap-4">
                 <div className="flex items-center ">
@@ -475,7 +486,7 @@ export default function ForFamily() {
 
               <button
                 onClick={handleCloseModal}
-                className="absolute top-[-10px] left-[-10px]"
+                className="absolute top-[-5px] left-[-5px] "
               >
                 <Close />
               </button>

@@ -378,8 +378,8 @@ export default function DashboardHeader({ children, onClickSearch }) {
               >
                 <img
                   src={IconHeader1}
-                  width="25px"
-                  height="25px"
+                  width="20px"
+                  height="20px"
                   className="mb-1"
                 />
                 <span className="hidden sm:block">Search</span>
@@ -388,8 +388,8 @@ export default function DashboardHeader({ children, onClickSearch }) {
               <button className="text-black mx-4 flex flex-col items-center text-center">
                 <img
                   src={IconHeader2}
-                  width="25px"
-                  height="25px"
+                  width="20px"
+                  height="20px"
                   className="mb-1"
                 />
                 <span className="hidden sm:block">Conversations</span>
@@ -400,8 +400,8 @@ export default function DashboardHeader({ children, onClickSearch }) {
               >
                 <img
                   src={IconHeader3}
-                  width="25px"
-                  height="25px"
+                  width="20px"
+                  height="20px"
                   className="mb-1"
                 />
                 <span className="hidden sm:block">Request</span>
@@ -413,8 +413,8 @@ export default function DashboardHeader({ children, onClickSearch }) {
               >
                 <img
                   src={IconHeader4}
-                  width="25px"
-                  height="25px"
+                  width="20px"
+                  height="20px"
                   className="mb-1"
                 />
                 <span className="hidden sm:block">Profile</span>

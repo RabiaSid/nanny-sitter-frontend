@@ -83,11 +83,19 @@ export default function ForNanny() {
 
   const handleSearchChange = (e) => {
     const query = e.target.value.toLowerCase();
+
+    if (!query) {
+      // If the input is empty, clear the filterList to show banner and filter
+      setFilterList([]);
+      return;
+    }
+
     const filtered = listData.filter((x) => {
       const firstNameMatch = x.firstName?.toLowerCase().includes(query);
       const budgetMatch = x.budget?.toLowerCase().includes(query);
       return firstNameMatch || budgetMatch;
     });
+
     setFilterList(filtered);
   };
 
@@ -129,8 +137,12 @@ export default function ForNanny() {
           />
         </div>
       </DashboardHeader>
-      <Hero />
-      <Filter />
+      {filterList.length > 0 ? null : (
+        <>
+          <Hero />
+          <Filter />
+        </>
+      )}
       <div className="pb-[70px] py-[30px]">
         <div className="container mx-auto ">
           <div className="grid grid-cols-3 rounded-md gap-8">
@@ -181,7 +193,7 @@ export default function ForNanny() {
         </div>
       </div>
       {/* <List data={listData} getDataById={getDataById} modalData={modalData} /> */}
-      <ChatBot />
+      {/* <ChatBot /> */}
 
       {isModalOpen && (
         <div
@@ -189,10 +201,10 @@ export default function ForNanny() {
           className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
         >
           <div
-            className="p-4 w-full max-w-2xl max-h-full rounded-md relative"
+            className="p-4 w-full max-h-full rounded-md relative  max-w-[500px]"
             ref={modalRef}
           >
-            <div className="bg-white p-4 rounded-md shadow-md border   overflow-y-scroll  h-[820px] z-0">
+            <div className="bg-white p-4 rounded-md shadow-md border overflow-y-scroll  h-[90vh] z-0 ">
               <div className="flex flex-col items-center mb-2 text-center">
                 <div className="h-[95px] w-[95px] relative">
                   <img src={profile} alt="Profile" />
@@ -233,8 +245,8 @@ export default function ForNanny() {
                 {modalData?.parentJobDescription}
               </p>
               <h3 className="text-lg font-bold border-t pt-3">Information</h3>
-              <div className="grid grid-cols-12 gap-4">
-                <div className="col-span-7">
+              <div className="grid grid-cols-12 ">
+                <div className="col-span-9">
                   <p className="text-gray-800 my-1 font-semibold">Personal</p>
                   <div className="flex justify-start gap-4">
                     <div className="flex items-center">
@@ -249,7 +261,7 @@ export default function ForNanny() {
                     </div>
                   </div>
                 </div>
-                <div className="col-span-5">
+                <div className="col-span-3">
                   <p className="text-gray-800 my-1 font-semibold">
                     Service Type
                   </p>
@@ -283,7 +295,7 @@ export default function ForNanny() {
 
               <button
                 onClick={handleCloseModal}
-                className="absolute top-[-10px] left-[-10px]"
+                className="absolute top-[-5px] left-[-5px] "
               >
                 <Close />
               </button>

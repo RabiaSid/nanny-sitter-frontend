@@ -19,6 +19,7 @@ const ConditionalLayout = ({ children }) => {
     "/help",
     "/request",
     "/package",
+    "/payment-gateway",
   ];
 
   // List of paths where the footer should be hidden
@@ -27,6 +28,7 @@ const ConditionalLayout = ({ children }) => {
     "/auth/sign-in",
     "/welcome-dashboard",
     "/package",
+    "/payment-gateway",
   ];
 
   const showHelpHeader = ["/help", "/request"];

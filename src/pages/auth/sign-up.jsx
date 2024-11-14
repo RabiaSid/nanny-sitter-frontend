@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AuthBg from "@/assets/auth/auth-bg.png";
+import imgbaby from "@/assets/auth/outline.png";
 import { Font1, H6, Font2 } from "@/config/typography";
 import Radiobutton from "@/component/common/radiobutton";
 import usaImg from "@/assets/auth/icon/usa.png";
@@ -14,7 +15,6 @@ import Toast from "@/component/common/toast";
 import { Post } from "@/config/api-method";
 import { BackArrow } from "@/config/app-constant";
 import icon from "@/assets/common-icon/google-icon.png";
-import imgbaby from "@/assets/auth/outline.png";
 import TextArea from "@/component/common/textarea";
 import { storeData } from "@/config/helper";
 import { useDispatch } from "react-redux";
@@ -391,7 +391,7 @@ export default function AuthSignUp() {
             />
             {isShow === true && (
               <Button
-                className="w-[95%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold my-2"
+                className="w-[95%] rounded-[35px] py-1 px-6 bg-[#FF6F61] text-white text-[22px] font-bold my-2"
                 onClick={() => nextStep()}
               >
                 Select
@@ -430,7 +430,7 @@ export default function AuthSignUp() {
             />
             {isShow === true && (
               <Button
-                className="w-[95%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mt-4 mb-2"
+                className="w-[95%] rounded-[35px] py-1 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mt-4 mb-2"
                 onClick={() => nextStep()}
               >
                 Select
@@ -506,7 +506,7 @@ export default function AuthSignUp() {
   return (
     <>
       <div
-        className="py-[30px] md:py-[50px] lg:py-[100px] min-h-[100dvh] relative"
+        className="min-h-[100dvh] relative"
         style={{ background: `url(${AuthBg}) 100% 100% / cover no-repeat` }}
       >
         <div className="flex justify-center items-center m-auto pt-[50px]">
@@ -523,7 +523,7 @@ export default function AuthSignUp() {
                   Tell us what you are looking for...
                 </Font1>
                 <div className="flex justify-center">
-                  <img src={imgbaby} />
+                  <img src={imgbaby} className="h-[150px]" />
                 </div>
 
                 <Radiobutton
@@ -553,7 +553,7 @@ export default function AuthSignUp() {
                     Already have an account?{" "}
                   </span>{" "}
                   <span
-                    className="text-[#ff6f61]"
+                    className="text-[#ff6f61] cursor-pointer"
                     onClick={() => {
                       navigate("/auth/sign-in");
                     }}
@@ -607,7 +607,7 @@ export default function AuthSignUp() {
                   // right={canadaImg}
                 />
                 {/* <Button
-                className={`w-[95%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold `}
+                className={`w-[95%] rounded-[35px] py-1 px-6 bg-[#FF6F61] text-white text-[22px] font-bold `}
                 onClick={() => nextStep()}
               >
                 Select
@@ -617,7 +617,7 @@ export default function AuthSignUp() {
                     Already have an account?{" "}
                   </span>{" "}
                   <span
-                    className="text-[#ff6f61]"
+                    className="text-[#ff6f61] cursor-pointer"
                     onClick={() => {
                       navigate("/auth/sign-in");
                     }}
@@ -670,11 +670,11 @@ export default function AuthSignUp() {
                     {currentQuestion.list2 && (
                       <>
                         {currentQuestion.list2.map((item, index) => (
-                          <div key={index} className="flex my-2 items-center">
+                          <div key={index} className="flex my-2 items-center ">
                             <img
                               src={item.img}
                               alt="icon"
-                              className="ms-[30%] me-2 max-h-[30px]"
+                              className="ms-[15%] me-2 max-h-[30px]"
                             />
                             <span>{item.txt}</span>
                           </div>
@@ -729,7 +729,7 @@ export default function AuthSignUp() {
                       Already have an account?{" "}
                     </span>{" "}
                     <span
-                      className="text-[#ff6f61]"
+                      className="text-[#ff6f61] cursor-pointer "
                       onClick={() => {
                         navigate("/auth/sign-in");
                       }}
@@ -737,7 +737,7 @@ export default function AuthSignUp() {
                       Login
                     </span>
                   </Font2>
-                  <Font2 className="pt-2 text-[#666666] text-start">
+                  <Font2 className="pt-2 text-[#666666] text-start cursor-pointer">
                     <span>By proceeding you agree to the </span>{" "}
                     <span className="text-[#ff6f61]">Term of Serivce</span> &{" "}
                     <br />{" "}

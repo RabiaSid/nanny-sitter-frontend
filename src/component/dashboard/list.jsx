@@ -23,7 +23,7 @@ export default function List({
         <img src={profile} width="95px" height="95px" alt="Profile" />
         <H5 className="mt-6 mb-2 font-normal">{firstName}</H5>
         <Font2 className="text-[#000] mb-2">{email}</Font2>
-        <Font2 className="text-[#000] mb-2">
+        <Font2 className="text-[#000] mb-0">
           <span>
             {
               userData.role === "nanny" ? region : budget
