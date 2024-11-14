@@ -578,6 +578,21 @@ export default function AuthSignUp() {
                 <Font1 className="pb-5">
                   Which country are you located in?
                 </Font1>
+
+                <Radiobutton
+                  id="canada"
+                  name="region"
+                  value="canada"
+                  onChange={(e) => {
+                    fillModel("region", e.target.value);
+                    nextStep();
+                  }}
+                  label="canada"
+                  checked={model.region === "canada"}
+                  btnField={true}
+                  image={canadaImg}
+                  // right={usaImg}
+                />
                 <Radiobutton
                   id="usa"
                   name="region"
@@ -591,20 +606,6 @@ export default function AuthSignUp() {
                   btnField={true}
                   image={usaImg}
                   // right={usaImg}
-                />
-                <Radiobutton
-                  id="canada"
-                  name="region"
-                  value="canada"
-                  onChange={(e) => {
-                    fillModel("region", e.target.valu);
-                    nextStep();
-                  }}
-                  label="Canada"
-                  checked={model.region === "canada"}
-                  btnField={true}
-                  image={canadaImg}
-                  // right={canadaImg}
                 />
                 {/* <Button
                 className={`w-[95%] rounded-[35px] py-1 px-6 bg-[#FF6F61] text-white text-[22px] font-bold `}
