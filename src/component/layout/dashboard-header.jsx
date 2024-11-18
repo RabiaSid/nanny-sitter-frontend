@@ -21,48 +21,26 @@ import Table from "@/component/common/table";
 import { CgClose } from "react-icons/cg";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 
-const cols = [
+const AllRequestCol = [
   { heading: "Sno", key: "Sno" },
   { heading: "Location", key: "location" },
   { heading: "Children Count", key: "childrenCount" },
   { heading: "Children Ages", key: "childrenAges" },
-  { heading: "Schedule", key: "schedule" },
   { heading: "Status", key: "status" },
   { heading: "Detail", key: "detail" },
 ];
-// const datasource = [
-//   {
-//     id: 1,
-//     nannyName: "John Doe",
-//     email: "john@example.com",
-//     serviceType: "full-time",
-//     status: <span className="text-green-800 font-bold">pending</span>,
-//   },
-//   {
-//     id: 2,
-//     nannyName: "Jane Smith",
-//     email: "jane@example.com",
-//     serviceType: "full-time",
-//     status: <span className="text-green-800 font-bold">pending</span>,
-//   },
-//   {
-//     id: 3,
-//     nannyName: "Sam Brown",
-//     email: "sam@example.com",
-//     serviceType: "full-time",
-//     status: <span className="text-sky-800 font-bold">Approved</span>,
-//   },
-//   {
-//     id: 4,
-//     nannyName: "Lisa White",
-//     email: "lisa@example.com",
-//     serviceType: "full-time",
-//     status: <span className="text-red-800 font-bold">Rejected</span>,
-//   },
-// ];
+const Request = [
+  { heading: "Sno", key: "Sno" },
+  { heading: "Region", key: "region" },
+  { heading: "Name", key: "firstName" },
+  { heading: "email", key: "email" },
+  { heading: "Status", key: "status" },
+  { heading: "Detail", key: "detail" },
+];
 
 export default function DashboardHeader({ children, onClickSearch }) {
-  const [datasource, setDatasource] = useState([]);
+  const [allDatasource, setAllDatasource] = useState([]);
+  const [userDatasource, setUserDatasource] = useState([]);
   const [requestModelOpen, setRequestModelOpen] = useState(false);
   const requestModalRef = useRef(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -79,6 +57,8 @@ export default function DashboardHeader({ children, onClickSearch }) {
   const [regiondropdown, setRegionDropdown] = useState(false);
   const regiondropdownRef = useRef(null);
   const userData = useSelector((state) => state.user);
+  const [selected, setSelected] = useState(true);
+  const [singleBooking, setSingleBooking] = useState({});
   // console.log("User logged in: 22222", userData);
   const dispatch = useDispatch();
   const [toast, setToast] = useState({
@@ -102,7 +82,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
 
   const [model, setModel] = useState({
     // DateofBirth: JSON.parse(JSON.stringify(new Date())),
-    imageUrl: imageUri,
+    image: imageUri,
   });
 
   const handleImageChange = (event) => {
@@ -238,34 +218,6 @@ export default function DashboardHeader({ children, onClickSearch }) {
     setIsEdit(true);
   };
 
-  // const getData = () => {
-  //   console.log("123456789");
-  //   Get("/booking/all")
-  //     .then((res) => {
-  //       console.log(res?.data);
-  //     })
-  //     .catch((err) => {
-  //       console.log("Error fetching data:", err);
-  //     });
-  // };
-
-  // console.log(listData);
-
-  // const getDataById = (id) => {
-  //   Get(`/auth/${id}`)
-  //     .then((res) => {
-  //       console.log("Fetched nanny data:", res?.data); // Debugging line
-  //       setModalData(res?.data);
-  //     })
-  //     .catch((err) => {
-  //       console.error("Error fetching user data:", err);
-  //     });
-  // };
-
-  // useEffect(() => {
-  //   getData();
-  // }, []);
-
   const save = () => {
     Put(
       "auth",
@@ -281,7 +233,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
         setModalOpen(false);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
       });
   };
 
@@ -289,13 +241,15 @@ export default function DashboardHeader({ children, onClickSearch }) {
     setRequestModelOpen(true);
   };
 
-  const getData = () => {
-    Get("/booking/all")
+  const getAllData = () => {
+    Get("/booking/All")
       .then((res) => {
         if (res?.data) {
-          // Format the data as needed for the table
-          const formattedData = res?.data.map((item, index) => ({
+          const AllUserData = res?.data.map((item, index) => ({
             Sno: index + 1,
+            name: item.name,
+            email: item.email,
+            region: item.region,
             location: item.location,
             childrenCount: item.childrenCount,
             childrenAges: item.childrenAges.join(", "), // Assuming `childrenAges` is an array
@@ -319,31 +273,131 @@ export default function DashboardHeader({ children, onClickSearch }) {
               </button>
             ),
           }));
-          setDatasource(formattedData);
+          setAllDatasource(AllUserData);
         }
       })
       .catch((err) => {
-        console.log("Error fetching data:", err);
+        // console.log("Error fetching data:", err);
       });
   };
 
-  const getDataById = (id) => {
-    Get(`/booking/${id}`)
+  const getUserData = () => {
+    Get(`/booking`, null, {
+      nannyId: userData?._id,
+    })
       .then((res) => {
-        console.log("Fetched nanny data: 123", res?.data); // Debugging line
+        console.log("API Response:", res);
+        if (res?.data) {
+          const bookingPromises = res.data.map((item, index) =>
+            Get(`/auth/${item.parentId}`).then((res) => {
+              const user = res?.data || {};
+              return {
+                Sno: index + 1,
+                location: item.location,
+                childrenCount: item.childrenCount,
+                childrenAges: item.childrenAges.join(", "),
+                schedule: item.schedule,
+                status: (
+                  <span
+                    className={`font-bold ${
+                      item.status === "approved"
+                        ? "text-sky-800"
+                        : item.status === "pending"
+                        ? "text-green-800"
+                        : "text-red-800"
+                    }`}
+                  >
+                    {item.status}
+                  </span>
+                ),
+                detail: (
+                  <button onClick={() => handleSubModel(item._id)}>
+                    <HiOutlineDotsVertical />
+                  </button>
+                ),
+                firstName: user.firstName,
+                email: user.email,
+                region: user.region,
+              };
+            })
+          );
+
+          // Resolve all booking promises
+          Promise.all(bookingPromises)
+            .then((userData) => {
+              setUserDatasource(userData);
+            })
+            .catch((err) => {
+              console.error("Error resolving booking details:", err);
+            });
+        } else {
+          console.log("No bookings data found.");
+          setUserDatasource([]); // Set empty array if no data is returned
+        }
       })
       .catch((err) => {
-        console.error("Error fetching user data:", err);
+        console.error("Error fetching bookings:", err);
+      });
+  };
+
+  console.log("UserDatasource Length:", userDatasource.length);
+
+  const getDataById = (id) => {
+    // First, fetch the booking data
+    Get(`/booking/${id}`)
+      .then((res) => {
+        if (res?.data) {
+          const booking = res?.data; // Save the booking data
+
+          // Now, fetch the user data using the userId from the booking
+          Get(`/auth/${booking.parentId}`)
+            .then((userRes) => {
+              const user = userRes?.data || {}; // Handle user data
+
+              setSingleBooking({
+                name: user.firstName,
+                email: user.email,
+                region: user.region,
+                status: booking.status,
+                message: booking.message,
+              });
+            })
+            .catch((err) => {
+              console.error("Error fetching user data:", err);
+            });
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching booking data:", err);
       });
   };
 
   useEffect(() => {
-    getData();
+    getAllData();
+    getUserData();
   }, []);
 
   const handleSubModel = (id) => {
     getDataById(id);
     setSubModalOpen(true);
+  };
+
+  const approvedBooking = () => {
+    Put(
+      "booking/",
+      {
+        ...model,
+        status: "approved",
+      },
+      singleBooking?.parentId
+    )
+      .then((res) => {
+        showToast("Booking Update Successfully", "success");
+        isSubModalOpen(false);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   return (
@@ -457,12 +511,12 @@ export default function DashboardHeader({ children, onClickSearch }) {
             className="p-4 w-full max-w-[55%] max-h-full rounded-md"
             ref={modalRef}
           >
-            <div className="bg-white px-8 rounded-md shadow-md border h-[750px] z-0 flex flex-col justify-center relative">
+            <div className="bg-white px-8 rounded-md shadow-md border h-[600px] z-0 flex flex-col justify-center relative">
               <div className="absolute top-6 right-6">
                 {isEdit ? (
                   <button>
                     <button
-                      className="px-8 py-2 bg-red-500 text-white font-medium rounded-md  hover:bg-red-600"
+                      className="px-8 py-1 text-[18px] bg-red-500 text-white font-medium rounded-md  hover:bg-red-600"
                       onClick={save}
                     >
                       Save
@@ -470,7 +524,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                   </button>
                 ) : (
                   <button
-                    className="border border-red-500 rounded-md px-8 py-2 flex text-lg font-semibold"
+                    className="border border-red-500 rounded-md px-8 py-1 text-[18px] flex  font-semibold"
                     onClick={handleEdit}
                   >
                     Edit <img src={edit} className="ps-4" />
@@ -484,11 +538,14 @@ export default function DashboardHeader({ children, onClickSearch }) {
                   <FileUpload
                     disabled={isEdit ? false : true}
                     onChange={handleImageChange}
-                    className="bg-transparent mt-2 mb-4 rounded-full border-gray-200 border h-[180px] w-[180px]
+                    className="bg-transparent mt-2 mb-4 rounded-full border-gray-200 border h-[120px] w-[120px]
                      text-[#666666] text-sm flex justify-center items-start
                       focus:outline-none "
                   >
-                    <img src={upload} className="w-full h-full" />
+                    <img
+                      src={upload || userData?.image}
+                      className="w-full h-full"
+                    />
                   </FileUpload>
                 </div>
                 <div className="col-span-8 flex flex-col justify-center">
@@ -499,18 +556,18 @@ export default function DashboardHeader({ children, onClickSearch }) {
                   >
                     Active--
                   </span>
-                  <h4 className="text-xl font-medium font-lato">
+                  <h4 className="text-md font-medium font-lato">
                     <span>{userData?.firstName}</span>
                     <span>{userData?.lastName}</span>
                   </h4>
-                  <h4 className="text-xl font-medium font-lato">
+                  <h4 className="text-md font-medium font-lato">
                     {userData?.email}
                   </h4>
                 </div>
               </div>
               <div className="gap-4 grid grid-cols-3">
                 <div>
-                  <span className="text-xl font-medium font-lato">
+                  <span className="text-md font-medium font-lato">
                     First Name
                   </span>
                   <InputField
@@ -520,15 +577,14 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     onChange={(e) =>
                       setModel({ ...model, firstName: e.target.value })
                     }
-                    con
                     placeholder={userData?.firstName}
-                    inputClass="bg-transparent mt-0 mb-3 px-6 py-4 rounded-[5px] 
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
                 border-gray-200 border text-gray-900 text-sm  block
                 w-full focus:outline-none "
                   />
                 </div>
                 <div>
-                  <span className="text-xl font-medium font-lato">
+                  <span className="text-md font-medium font-lato pb-2">
                     Last Name
                   </span>
                   <InputField
@@ -539,170 +595,110 @@ export default function DashboardHeader({ children, onClickSearch }) {
                       setModel({ ...model, lastName: e.target.value })
                     }
                     placeholder={userData?.lastName}
-                    inputClass="bg-transparent mt-0 mb-3 px-6 py-4 rounded-[5px] 
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
                 border-gray-200 border text-gray-900 text-sm  block
                 w-full focus:outline-none "
                   />
                 </div>
 
+                {/* Service Type */}
                 <div>
-                  <span className="text-xl font-medium font-lato">
+                  <span className="text-md font-medium font-lato pb-2">
                     Service Type
                   </span>
-                  <button
-                    className="bg-transparent mt-0 mb-3 rounded-[5px] 
-                border-gray-200 border text-gray-900 text-sm  block
-                w-full focus:outline-none relative"
-                    onClick={toggleServiceTypeDropdown}
+                  <select
+                    name="serviceType"
                     disabled={isEdit ? false : true}
-                    ref={serviceTypedropdownRef} // Attach the ref here
+                    value={model.serviceType || ""}
+                    onChange={(e) => setModel("serviceType", e.target.value)} // Use the handler for select dropdown
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
                   >
-                    <span className="flex justify-between p-4">
-                      {userData?.serviceType}
-                      <svg
-                        className={`w-3 h-3 ms-3 mt-1 ${
-                          serviceTypedropdown ? "rotate-180" : ""
-                        }`}
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 10 6"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="m1 1 4 4 4-4"
-                        />
-                      </svg>
-                    </span>
-                  </button>
+                    <option value="">Select Service Type</option>
+                    <option value="part-time">Part Time</option>
+                    <option value="full-time">Full Time</option>
+                    <option value="occasional">Occasional</option>
+                  </select>
                 </div>
+
+                {/* Region */}
                 <div>
-                  <span className="text-xl font-medium font-lato">Regoin</span>
-                  <button
-                    className="bg-transparent mt-0 mb-3 rounded-[5px] 
-                border-gray-200 border text-gray-900 text-sm  block
-                w-full focus:outline-none relative"
-                    onClick={toggleRegionDropdown}
+                  <span className="text-md font-medium font-lato pb-2">
+                    Region
+                  </span>
+                  <select
+                    name="region"
                     disabled={isEdit ? false : true}
-                    ref={regiondropdownRef} // Attach the ref here
+                    value={model.region || ""}
+                    onChange={(e) => setModel("region", e.target.value)} // Use the handler for select dropdown
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
                   >
-                    <span className="flex justify-between p-4">
-                      Regoin
-                      <svg
-                        className={`w-3 h-3 ms-3 mt-1 ${
-                          regiondropdown ? "rotate-180" : ""
-                        }`}
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 10 6"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="m1 1 4 4 4-4"
-                        />
-                      </svg>
-                    </span>
-                    {regiondropdown && (
-                      <div
-                        className={`absolute z-10 bg-white divide-y divide-gray-100 rounded-b-lg w-full 
-                           transition-all duration-500 ease-in-out left-0
-                           border-t-0 border-2 right-0`}
-                      >
-                        <ul className="text-sm text-gray-700 ">
-                          <li className="py-2 hover:bg-red-300 hover:text-white">
-                            usa
-                          </li>
-                          <li className="py-2 hover:bg-red-300 hover:text-white">
-                            canada
-                          </li>
-                        </ul>
-                      </div>
-                    )}
-                  </button>
+                    <option value="">Select Region</option>
+                    <option value="usa">USA</option>
+                    <option value="canada">Canada</option>
+                  </select>
                 </div>
+
                 <div>
-                  <span className="text-xl font-medium font-lato">
+                  <span className="text-md font-medium font-lato pb-2">
                     Zip Code
                   </span>
                   <InputField
                     disabled={isEdit ? false : true}
                     type="text"
-                    placeholder="Zip Code"
-                    inputClass="bg-transparent mt-0 mb-3 px-6 py-4 rounded-[5px] 
+                    value={model.zipCode}
+                    onChange={(e) =>
+                      setModel({ ...model, zipCode: e.target.value })
+                    }
+                    placeholder={userData?.zipCode}
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
                 border-gray-200 border text-gray-900 text-sm  block
                 w-full focus:outline-none "
                   />
                 </div>
-                <div>
-                  <span className="text-xl font-medium font-lato">
-                    Share Nannny
-                  </span>
-                  <button
-                    className="bg-transparent mt-0 mb-3 rounded-[5px] 
-                border-gray-200 border text-gray-900 text-sm  block
-                w-full focus:outline-none relative"
-                    disabled={isEdit ? false : true}
-                    onClick={toggleshareNannyDropdown}
-                    ref={shareNannydropdownRef} // Attach the ref here
-                  >
-                    <span className="flex justify-between p-4">
-                      Share Nannny
-                      <svg
-                        className={`w-3 h-3 ms-3 mt-1 ${
-                          shareNannydropdown ? "rotate-180" : ""
-                        }`}
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 10 6"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="m1 1 4 4 4-4"
-                        />
-                      </svg>
-                    </span>
-                    {shareNannydropdown && (
-                      <div
-                        className={`absolute z-10 bg-white divide-y divide-gray-100 rounded-b-lg w-full 
-                           transition-all duration-500 ease-in-out left-0
-                           border-t-0 border-2 right-0`}
-                      >
-                        <ul className="text-sm text-gray-700 ">
-                          <li className="py-2 hover:bg-red-300 hover:text-white">
-                            Yes
-                          </li>
-                          <li className="py-2 hover:bg-red-300 hover:text-white">
-                            No
-                          </li>
-                        </ul>
-                      </div>
-                    )}
-                  </button>
-                </div>
               </div>
-              <div>
-                <span className="text-xl font-medium font-lato">
-                  Job Describtion
-                </span>
-                <TextArea
-                  disabled={isEdit ? false : true}
-                  placeholder="message"
-                  className="bg-transparent mt-0 mb-3 px-6 py-4 rounded-[5px] 
+              {userData?.role === "nanny" && (
+                <div>
+                  <span className="text-md font-medium font-lato pb-2">
+                    Describtion
+                  </span>
+                  <TextArea
+                    disabled={isEdit ? false : true}
+                    // type="text"
+                    value={model.parentJobDescription}
+                    onChange={(e) =>
+                      setModel({
+                        ...model,
+                        parentJobDescription: e.target.value,
+                      })
+                    }
+                    placeholder={userData?.parentJobDescription || "message"}
+                    rows={5}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
                 border-gray-200 border text-gray-900 text-sm  block
                 w-full focus:outline-none "
-                />
-              </div>
+                  />
+                </div>
+              )}
+              {userData?.role === "user" && (
+                <div>
+                  <span className="text-md font-medium font-lato pb-2">
+                    Describtion
+                  </span>
+                  <TextArea
+                    disabled={isEdit ? false : true}
+                    // type="text"
+                    value={model.aboutYourself}
+                    onChange={(e) =>
+                      setModel({ ...model, aboutYourself: e.target.value })
+                    }
+                    placeholder={userData?.aboutYourself || "message"}
+                    rows={5}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div>
+              )}
               <button
                 onClick={handleCloseModal}
                 className="absolute top-[-15px] left-[-15px]"
@@ -717,11 +713,19 @@ export default function DashboardHeader({ children, onClickSearch }) {
       {requestModelOpen && (
         <div
           id="static-modal"
-          className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg "
+          className="fixed top-0 right-0 left-0  flex justify-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
         >
-          <div className="p-4 rounded-md relative" ref={requestModalRef}>
-            <Table datasource={datasource} cols={cols} />
-            <div className="absolute top-[-3px] right-[-3px] bg-gray-950 rounded-full p-2">
+          <div
+            className="p-4 w-full max-h-full rounded-md relative  max-w-[800px] mt-16"
+            ref={requestModalRef}
+          >
+            {selected === false && (
+              <Table datasource={allDatasource} cols={AllRequestCol} />
+            )}
+            {selected === true && userDatasource.length > 0 && (
+              <Table datasource={userDatasource} cols={Request} />
+            )}
+            <div className="absolute top-[-5px] right-[-5px] bg-gray-950 rounded-full p-2">
               <CgClose
                 size={24}
                 color="#fff"
@@ -731,19 +735,102 @@ export default function DashboardHeader({ children, onClickSearch }) {
               />
             </div>
           </div>
+          <div className="absolute top-2 w-[350px]">
+            <div className="relative w-full mt-4 rounded-md border h-10 p-1 bg-gray-200">
+              <div className="relative w-full h-full flex items-center">
+                <div
+                  onClick={() => setSelected(true)}
+                  className={`${
+                    selected === true
+                      ? "rounded-md bg-gray-950 text-white"
+                      : "text-gray-400 bg-transparent "
+                  } cursor-pointer w-full flex justify-center h-full border`}
+                >
+                  <button>Your Request</button>
+                </div>
+                <div
+                  onClick={() => setSelected(false)}
+                  className={`${
+                    selected === false
+                      ? "rounded-md bg-gray-950 text-white"
+                      : "text-gray-400 bg-transparent "
+                  } cursor-pointer w-full flex justify-center h-full border`}
+                >
+                  <button>All Request</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {isSubModalOpen && (
+      {isSubModalOpen && singleBooking && (
         <div
           id="static-modal"
-          className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
+          className="fixed top-0 right-0 left-0 flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
         >
           <div
-            className="p-4 w-full max-w-[55%] max-h-full rounded-md"
+            className="p-4 w-full max-w-[45%] max-h-full rounded-md"
             ref={subModalRef}
           >
-            <div className="bg-white px-8 rounded-md shadow-md border h-[750px] z-0 flex flex-col justify-center relative">
+            <div className="bg-white px-8 rounded-md shadow-md border h-[500px] z-0 flex flex-col justify-center relative">
+              <h2 className="absolute font-bold text-lg top-3 left-[30%] right-[30%] text-center">
+                Booking Detail
+              </h2>
+              <div className="mb-2">
+                <p className="text-green-800 italic absolute top-3 left-auto right-3">
+                  {singleBooking?.status || "Status not available"}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 mt-2">
+                <div className="flex flex-col rounded-md">
+                  <h3 className="text-md font-semibold">Name:</h3>
+                  <p className="text-sm text-gray-800">
+                    {singleBooking?.name || "N/A"}
+                  </p>
+                </div>
+                <div className="flex flex-col rounded-md">
+                  <h3 className="text-md font-semibold">Email:</h3>
+                  <p className="text-sm text-gray-800">
+                    {singleBooking?.email || "N/A"}
+                  </p>
+                </div>
+                <div className="flex flex-col rounded-md">
+                  <h3 className="text-md font-semibold">Region:</h3>
+                  <p className="text-sm text-gray-800">
+                    {singleBooking?.region || "N/A"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-2">
+                <h3 className="text-md font-semibold">Parent Message:</h3>
+                <p className="text-sm text-gray-800 italic ">
+                  {singleBooking?.message || "No message available."}
+                </p>
+              </div>
+
+              <h3 className="text-sm font-semibold">
+                Please update this booking status?
+              </h3>
+              <div className="flex my-2 gap-4">
+                <button
+                  className="rounded-full px-4 py-1 bg-blue-500/85 text-white"
+                  onClick={approvedBooking}
+                >
+                  Accept
+                </button>
+                <button className="rounded-full px-4 py-1 bg-red-600/85  text-white">
+                  Reject
+                </button>
+              </div>
+              <div className="my-4">
+                <TextArea type="text" label="Reason" rows={3} className="" />
+              </div>
+              <button className="rounded-full border px-4 py-1 bg-gray-950/85  text-white">
+                Submit
+              </button>
+
               <button
                 onClick={() => setSubModalOpen(false)}
                 className="absolute top-[-25px] left-[-25px]"

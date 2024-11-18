@@ -2,9 +2,9 @@ import React from "react";
 
 const Table = ({ label, datasource, cols }) => {
   return (
-    <div className="overflow-y-scroll  max-h-[820px]">
-      <table className=" bg-white border border-gray-200 shadow-md">
-        <thead className="bg-red-500 text-white">
+    <div className="overflow-y-scroll  max-h-[450px]">
+      <table className=" bg-white shadow-md w-full">
+        <thead className="bg-red-600 text-white">
           <tr>
             {cols.map((col, index) => (
               <th key={index} className="px-4 py-4 text-left text-xl">

@@ -150,6 +150,7 @@ export default function ForNanny() {
               ? filterList.map((x, i) => (
                   <List
                     key={x._id}
+                    image={x.image || profile}
                     firstName={x.firstName}
                     email={x.email}
                     serviceType={x?.serviceType}
@@ -174,6 +175,7 @@ export default function ForNanny() {
                 listData.map((x, i) => (
                   <List
                     key={x._id}
+                    image={x.image || profile}
                     firstName={x.firstName}
                     email={x.email}
                     serviceType={x?.serviceType}

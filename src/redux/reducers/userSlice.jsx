@@ -1,12 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 let initialState = {
-  isActive: false,
+  isSuccessfull: false,
   _id: 1,
   firstName: "abc",
   lastName: "abc",
   role: "abc",
-  // Image: null,
+  image: null,
   email: "abc",
   region: null,
   zipCode: null,
@@ -38,13 +38,13 @@ export const UserSlice = createSlice({
   initialState,
   reducers: {
     add: (state, action) => {
-      state.isActive = true;
+      state.isSuccessfull = true;
       // console.log("User logged in:", action.payload); // Check the payload
       state._id = action.payload._id;
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
       state.role = action.payload.role;
-      // state.Image = action.payload.Image;
+      state.image = action.payload.image;
       state.email = action.payload.email;
       state.region = action.payload.region;
       state.zipCode = action.payload.zipCode;
@@ -67,7 +67,7 @@ export const UserSlice = createSlice({
       localStorage.setItem("userState", JSON.stringify(state));
       //   "region": "usa",
       //   "zipCode": "255",
-      //   "isActive": true,
+      //   "isSuccessfull": true,
       //   "serviceType": "part-time" ,
       //   "sharingNanny": true,
       //   "parentJobDescription": "bussiness man"
@@ -79,7 +79,7 @@ export const UserSlice = createSlice({
       // "region": "usa" ,
       // "serviceType": "part-time" ,
       // "zipCode": "22255",
-      // "isActive": true ,
+      // "isSuccessfull": true ,
       // "budget": "22$" ,
       // "isAIDcertificate": true ,
       // "isCPRcertificate": true ,

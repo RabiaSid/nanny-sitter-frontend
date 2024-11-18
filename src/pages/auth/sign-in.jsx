@@ -49,7 +49,7 @@ export default function AuthSignIn() {
       showToast("Email and password are required.", "error");
       return;
     }
-    model.isActive = true;
+    model.isSuccessfull = true;
     // console.log(model);
     Post("auth/login", model)
       .then((res) => {

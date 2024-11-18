@@ -19,6 +19,7 @@ import TextArea from "@/component/common/textarea";
 import { storeData } from "@/config/helper";
 import { useDispatch } from "react-redux";
 import { add } from "@/redux/reducers/userSlice";
+import personImg from "../../assets/auth/image.jpg";
 
 // Array of nanny questions
 const nanny = [
@@ -338,9 +339,9 @@ export default function AuthSignUp() {
                 placeholder={option.placeholder}
                 onChange={(e) => {
                   fillModel(question.key, e.target.value === "true"); // Correct boolean handling
-                  if (e.target.value === "false") {
-                    nextStep(); // Skip the follow-up question if 'No'
-                  }
+                  nextStep();
+                  // if (e.target.value === "false") {
+                  // }
                 }}
                 label={option.label}
                 checked={model[question.key] === option.value}
@@ -458,8 +459,9 @@ export default function AuthSignUp() {
       return;
     }
 
-    model.isActive = true;
+    model.isSuccessfull = true;
     model.id = 1;
+    model.image = personImg;
 
     console.log("Model being sent:", { ...model }); // Log the model
 

@@ -10,6 +10,7 @@ export default function TextArea(props) {
     placeholder,
     className,
     disabled,
+    rows,
   } = props;
   return (
     // <form>
@@ -20,7 +21,7 @@ export default function TextArea(props) {
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        rows="10"
+        rows={rows ? rows : "10"}
         required
         className={
           className

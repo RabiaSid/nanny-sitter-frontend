@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 
 export default function List({
   children,
+  image,
   firstName,
   email,
   budget,
@@ -20,7 +21,13 @@ export default function List({
         <div className="container mx-auto ">
           <div className="grid grid-cols-3 rounded-md gap-8"> */}
       <div className="border p-6 rounded-lg flex flex-col justify-center items-center text-center">
-        <img src={profile} width="95px" height="95px" alt="Profile" />
+        <img
+          src={image}
+          width="95px"
+          height="95px"
+          alt="Profile"
+          className="rounded-full"
+        />
         <H5 className="mt-6 mb-2 font-normal">{firstName}</H5>
         <Font2 className="text-[#000] mb-2">{email}</Font2>
         <Font2 className="text-[#000] mb-0">

@@ -20,8 +20,8 @@ import NotFound from "@/pages/not-found";
 import PaymentGateway from "../component/auth/payment-gateway";
 
 export default function AppRoutes() {
-  const isActive = useSelector((state) => state?.user?.isActive);
-  console.log(isActive);
+  const isSuccessfull = useSelector((state) => state?.user?.isSuccessfull);
+  console.log(isSuccessfull);
 
   return (
     <>
@@ -47,11 +47,11 @@ export default function AppRoutes() {
         <Route path="/auth/sign-up" element={<AuthSignUp />} />
         <Route
           path="/dashboard/*"
-          element={isActive === true && <Dashboard />}
+          element={isSuccessfull === true && <Dashboard />}
         />
         <Route
           path="/welcome-dashboard"
-          element={isActive === true && <Welcome />}
+          element={isSuccessfull === true && <Welcome />}
         />
         <Route path="/*" element={<NotFound />} />
       </Routes>

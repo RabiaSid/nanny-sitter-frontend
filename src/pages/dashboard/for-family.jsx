@@ -47,6 +47,7 @@ export default function ForFamily() {
   const [filterList, setFilterList] = useState([]);
   const [nannyId, setNannyId] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
   const modalRef = useRef(null);
   const [toast, setToast] = useState({
     isVisible: false,
@@ -171,6 +172,10 @@ export default function ForFamily() {
     }
   }, [modalData]);
 
+  const AddBooking = () => {
+    setShowBooking(true);
+  };
+
   const newBooking = () => {
     booking.status = "pending";
     console.log("Booking data:", booking); // Debugging line
@@ -223,6 +228,7 @@ export default function ForFamily() {
               ? filterList.map((x, i) => (
                   <List
                     key={x._id}
+                    image={x.image || profile}
                     firstName={x.firstName}
                     email={x.email}
                     budget={`${x?.budget} | 3 years experience`}
@@ -237,15 +243,10 @@ export default function ForFamily() {
                     </button>
                   </List>
                 ))
-              : // <TaskCard
-                //   key={i}
-                //   title={x.name}
-                //   description={x.description}
-                //   image2={ImageDesign}
-                // />
-                listData.map((x, i) => (
+              : listData.map((x, i) => (
                   <List
                     key={x._id}
+                    image={x.image || profile}
                     firstName={x.firstName}
                     email={x.email}
                     budget={`${x?.budget} | 3 years experience`}
@@ -269,13 +270,13 @@ export default function ForFamily() {
       {isModalOpen && (
         <div
           id="static-modal"
-          className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
+          className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-black-50 bg-opacity-5 backdrop-blur-lg"
         >
           <div
             className="p-4 w-full max-h-full rounded-md relative  max-w-[550px]"
             ref={modalRef}
           >
-            <div className="bg-white p-4 rounded-md shadow-md border overflow-y-scroll  h-[90vh] z-0 ">
+            <div className="bg-white p-4 rounded-md shadow-md border overflow-y-scroll  h-[90vh] z-0 relative">
               <div className="flex flex-col items-center mb-2 text-center">
                 <div className="h-[95px] w-[95px] relative">
                   <img src={profile} alt="Profile" />
@@ -290,207 +291,244 @@ export default function ForFamily() {
               <div className="flex items-center pb-2 border-b">
                 <img src={icon1} className="h-[30px] w-[30px]" />
                 <h3 className="text-base font-semibold ms-4">
-                  {" "}
                   Featured Profile with PLUS
                 </h3>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="flex items-center pt-3">
-                  <img src={icon2} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">
-                    <FormatLastSeen date={modalData?.lastSeen} />
-                  </p>
-                </div>
-                <div className="flex items-center pt-3">
-                  <img src={icon3} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">Responds within a day</p>
-                </div>
-                <div className="flex items-center pt-3">
-                  <img src={icon4} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">{modalData?.region}</p>
-                </div>
-                <div className="flex items-center pb-3">
-                  <img src={icon23} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">{modalData?.budget}</p>
-                </div>
-                <div className="flex items-center pb-3">
-                  <img src={icon9} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">
-                    {modalData?.childAgeGroup}
-                  </p>
-                </div>
-                <div className="flex items-center pb-3">
-                  <img src={icon10} className="h-[18px]" />
-                  <p className="ml-2 text-gray-600">
-                    specail child:{" "}
-                    <strong>
-                      {" "}
-                      {modalData?.careSpecialChild === true ? "yes" : "no"}{" "}
-                    </strong>
-                  </p>
-                </div>
-              </div>
+              {showBooking === true ? (
+                <>
+                  <h3 className="text-lg font-bold mt-4 ">Booking</h3>
+                  <div className="mt-6 mb-4 grid grid-cols-2 gap-8">
+                    <div className="flex flex-col border px-3 py-2 rounded-md relative">
+                      <label className="w-[50px] font-semibold italic h-[25px] text-center absolute top-[-15px] bg-white">
+                        Start
+                      </label>
+                      <input
+                        aria-label="Date"
+                        type="date"
+                        placeholder="Start Time"
+                        value={booking.startTime || ""}
+                        onChange={(e) => fillModel("startTime", e.target.value)}
+                      />
+                    </div>
 
-              <h3 className="text-lg font-bold "> A little bit about us...</h3>
-              <p className="text-gray-800 my-2">{modalData?.aboutYourself}</p>
-              <h3 className="text-lg font-bold border-t pt-3">Looking For</h3>
-              <p className="text-gray-800 my-1 font-semibold">Availability</p>
-              <div className="flex justify-between pe-3">
-                <div className="flex items-center">
-                  <img src={icon5} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">Start: ASAP</p>
-                </div>
-                <div className="flex items-center">
-                  <img src={icon6} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">
-                    {modalData?.availability?.length > 0
-                      ? modalData?.availability.join(", ")
-                      : "any-time"}
-                  </p>
-                </div>
-                <div className="flex items-center">
-                  <img src={icon7} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">
-                    {" "}
-                    {modalData?.isLiven === true ? "Live In" : "Live Out"}
-                  </p>
-                </div>
-                <div className="flex items-center mt-2">
-                  <img src={icon8} className="h-[16px]" />
-                  <p className="text-gray-600 ml-1">{modalData?.serviceType}</p>
-                </div>
-              </div>
-
-              <h3 className="text-lg font-bold mt-2">Requirments</h3>
-              <div>
-                <p className="text-gray-800 my-1 font-semibold">
-                  Certification
-                </p>
-                <div className="flex justify-start">
-                  {modalData?.isDrivingLicense && (
-                    <div className="flex items-center ">
-                      <img src={icon18} className="h-[22px]" />
-                      <p className="text-gray-600 ml-1">Driver’s License</p>
+                    <div className="flex flex-col border px-3 py-2 rounded-md relative">
+                      <label className="w-[50px] font-semibold italic h-[25px] text-center absolute top-[-15px] bg-white">
+                        End
+                      </label>
+                      <input
+                        aria-label="Date"
+                        type="date"
+                        placeholder="Start Time"
+                        value={booking.endTime || ""}
+                        onChange={(e) => fillModel("endTime", e.target.value)}
+                      />
                     </div>
-                  )}
-                  {modalData?.isCPRcertificate && (
-                    <div className="flex items-center ml-6">
-                      <img src={icon16} className="h-[22px]" />
-                      <p className="text-gray-600 ml-1">CPR certificate</p>
-                    </div>
-                  )}
-                  {modalData?.isAIDcertificate && (
-                    <div className="flex items-center ml-6">
-                      <img src={icon17} className="h-[22px]" />
-                      <p className="text-gray-600 ml-1">First Aid Kit</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div>
-                <p className="text-gray-800 my-1 font-semibold">
-                  Fluent Languages
-                </p>
-                <div className="flex justify-start">
-                  <div className="flex items-center ">
-                    <img src={icon15} className="h-[22px]" />
-                    <p className="text-gray-600 ml-1 capitalize">
-                      {modalData?.Language}
-                    </p>
                   </div>
-                </div>
-              </div>
 
-              <p className="text-gray-800 my-1 font-semibold">Other</p>
-              <div className="flex justify-start gap-4">
-                <div className="flex items-center ">
-                  <img src={icon20} className="h-[22px]" />
-                  <p className="text-gray-600 ml-1">
-                    Do HouseKeeping:{" "}
-                    <strong>
-                      {" "}
-                      {modalData?.doHouseKeeping === true ? "yes" : "no"}{" "}
-                    </strong>
+                  <div className="border-2 border-[#e5e7eb] flex  rounded-md">
+                    <input
+                      type="text"
+                      placeholder="Your budget"
+                      // value={formData.budget}
+                      // onChange={(e) =>
+                      //   setFormData({ ...formData, budget: e.target.value })
+                      // }
+                      className="flex h-10 w-full px-3 py-2 text-sm"
+                    />
+                    <button className="px-4 bg-red-500  rounded-r-md text-white">
+                      Add
+                    </button>
+                  </div>
+
+                  <div className="mt-8 mb-4">
+                    <TextArea
+                      type="text"
+                      label="Message"
+                      value={booking.message || ""}
+                      onChange={(e) => fillModel("message", e.target.value)}
+                      rows={8}
+                      className=""
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="flex items-center pt-3">
+                      <img src={icon2} className="h-[18px]" />
+                      <p className="ml-2 text-gray-600">
+                        <FormatLastSeen date={modalData?.lastSeen} />
+                      </p>
+                    </div>
+                    <div className="flex items-center pt-3">
+                      <img src={icon3} className="h-[18px]" />
+                      <p className="ml-2 text-gray-600">
+                        Responds within a day
+                      </p>
+                    </div>
+                    <div className="flex items-center pt-3">
+                      <img src={icon4} className="h-[18px]" />
+                      <p className="ml-2 text-gray-600">{modalData?.region}</p>
+                    </div>
+                    <div className="flex items-center pb-3">
+                      <img src={icon23} className="h-[18px]" />
+                      <p className="ml-2 text-gray-600">{modalData?.budget}</p>
+                    </div>
+                    <div className="flex items-center pb-3">
+                      <img src={icon9} className="h-[18px]" />
+                      <p className="ml-2 text-gray-600">
+                        {modalData?.childAgeGroup}
+                      </p>
+                    </div>
+                    <div className="flex items-center pb-3">
+                      <img src={icon10} className="h-[18px]" />
+                      <p className="ml-2 text-gray-600">
+                        specail child:
+                        <strong>
+                          {modalData?.careSpecialChild === true ? "yes" : "no"}
+                        </strong>
+                      </p>
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold ">
+                    A little bit about us...
+                  </h3>
+                  <p className="text-gray-800 my-2">
+                    {modalData?.aboutYourself}
                   </p>
-                </div>
-                <div className="flex items-center ">
-                  <img src={icon19} className="h-[22px]" />
-                  <p className="text-gray-600 ml-1">
-                    Do Meal Preparing:{" "}
-                    <strong>
-                      {" "}
-                      {modalData?.doHouseKeeping === true ? "yes" : "no"}{" "}
-                    </strong>
+                  <h3 className="text-lg font-bold border-t pt-3">
+                    Looking For
+                  </h3>
+                  <p className="text-gray-800 my-1 font-semibold">
+                    Availability
                   </p>
-                </div>
-              </div>
-              <p className="text-gray-800 mt-2 mb-1 font-semibold">
-                Start Experience From
-              </p>
-              <div className="flex justify-start">
-                <div className="flex items-center ">
-                  <img src={icon15} className="h-[22px]" />
-                  <p className="text-gray-600 ml-1 capitalize">
-                    {modalData?.experience}
+                  <div className="flex justify-between pe-3">
+                    <div className="flex items-center">
+                      <img src={icon5} className="h-[16px]" />
+                      <p className="text-gray-600 ml-1">Start: ASAP</p>
+                    </div>
+                    <div className="flex items-center">
+                      <img src={icon6} className="h-[16px]" />
+                      <p className="text-gray-600 ml-1">
+                        {modalData?.availability?.length > 0
+                          ? modalData?.availability.join(", ")
+                          : "any-time"}
+                      </p>
+                    </div>
+                    <div className="flex items-center">
+                      <img src={icon7} className="h-[16px]" />
+                      <p className="text-gray-600 ml-1">
+                        {modalData?.isLiven === true ? "Live In" : "Live Out"}
+                      </p>
+                    </div>
+                    <div className="flex items-center mt-2">
+                      <img src={icon8} className="h-[16px]" />
+                      <p className="text-gray-600 ml-1">
+                        {modalData?.serviceType}
+                      </p>
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold mt-2">Requirments</h3>
+                  <div>
+                    <p className="text-gray-800 my-1 font-semibold">
+                      Certification
+                    </p>
+                    <div className="flex justify-start">
+                      {modalData?.isDrivingLicense && (
+                        <div className="flex items-center ">
+                          <img src={icon18} className="h-[22px]" />
+                          <p className="text-gray-600 ml-1">Driver’s License</p>
+                        </div>
+                      )}
+                      {modalData?.isCPRcertificate && (
+                        <div className="flex items-center ml-6">
+                          <img src={icon16} className="h-[22px]" />
+                          <p className="text-gray-600 ml-1">CPR certificate</p>
+                        </div>
+                      )}
+                      {modalData?.isAIDcertificate && (
+                        <div className="flex items-center ml-6">
+                          <img src={icon17} className="h-[22px]" />
+                          <p className="text-gray-600 ml-1">First Aid Kit</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-gray-800 my-1 font-semibold">
+                      Fluent Languages
+                    </p>
+                    <div className="flex justify-start">
+                      <div className="flex items-center ">
+                        <img src={icon15} className="h-[22px]" />
+                        <p className="text-gray-600 ml-1 capitalize">
+                          {modalData?.Language}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-gray-800 my-1 font-semibold">Other</p>
+                  <div className="flex justify-start gap-4">
+                    <div className="flex items-center ">
+                      <img src={icon20} className="h-[22px]" />
+                      <p className="text-gray-600 ml-1">
+                        Do HouseKeeping:
+                        <strong>
+                          {modalData?.doHouseKeeping === true ? "yes" : "no"}
+                        </strong>
+                      </p>
+                    </div>
+                    <div className="flex items-center ">
+                      <img src={icon19} className="h-[22px]" />
+                      <p className="text-gray-600 ml-1">
+                        Do Meal Preparing:
+                        <strong>
+                          {modalData?.doHouseKeeping === true ? "yes" : "no"}
+                        </strong>
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-gray-800 mt-2 mb-1 font-semibold">
+                    Start Experience From
                   </p>
+                  <div className="flex justify-start">
+                    <div className="flex items-center ">
+                      <img src={icon15} className="h-[22px]" />
+                      <p className="text-gray-600 ml-1 capitalize">
+                        {modalData?.experience}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {showBooking === false ? (
+                <div className="py-2 absolute top-0 right-0">
+                  <button
+                    className="px-4 py-2 border-none text-white rounded-[5px] me-2 flex bg-emerald-900/60 text-sm"
+                    onClick={AddBooking}
+                    // onClick={newBooking}
+                  >
+                    Add Booking
+                  </button>
                 </div>
-              </div>
-
-              <h3 className="text-lg font-bold mt-4 ">Booking</h3>
-              <div className="mt-6 mb-4 grid grid-cols-2 gap-8">
-                <div className="flex flex-col border px-3 py-2 rounded-md relative">
-                  <label className="w-[50px] font-semibold italic h-[25px] text-center absolute top-[-15px] bg-white">
-                    Start
-                  </label>
-                  <input
-                    aria-label="Date"
-                    type="date"
-                    placeholder="Start Time"
-                    value={booking.startTime || ""}
-                    onChange={(e) => fillModel("startTime", e.target.value)}
-                  />
+              ) : (
+                <div className="py-2 absolute top-0 right-0">
+                  <button
+                    className="px-4 py-2 border-none text-white rounded-[5px] me-2 flex bg-cyan-900/80 text-sm"
+                    onClick={newBooking}
+                  >
+                    Book Now
+                  </button>
                 </div>
-
-                <div className="flex flex-col border px-3 py-2 rounded-md relative">
-                  <label className="w-[50px] font-semibold italic h-[25px] text-center absolute top-[-15px] bg-white">
-                    End
-                  </label>
-                  <input
-                    aria-label="Date"
-                    type="date"
-                    placeholder="Start Time"
-                    value={booking.endTime || ""}
-                    onChange={(e) => fillModel("endTime", e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="mt-8 mb-4">
-                <TextArea
-                  type="text"
-                  label="Message"
-                  value={booking.message || ""}
-                  onChange={(e) => fillModel("message", e.target.value)}
-                  minlength={30}
-                  className=""
-                />
-              </div>
-
-              <div className="py-2">
-                <button
-                  className="px-16 py-3 border-none text-white rounded-[25px] me-2 flex bg-[#ff6f61]"
-                  onClick={newBooking}
-                >
-                  <a>Book Now</a>
-                </button>
-              </div>
-
-              <button
-                onClick={handleCloseModal}
-                className="absolute top-[-5px] left-[-5px] "
-              >
-                <Close />
-              </button>
+              )}
             </div>
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-[-5px] left-[-5px] "
+            >
+              <Close />
+            </button>
           </div>
         </div>
       )}
