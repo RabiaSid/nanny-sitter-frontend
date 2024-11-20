@@ -20,9 +20,9 @@ export default function Hero() {
               Get the nanny agency experience without the high <br /> cost.
               We’ll do the hard work to find your ideal nanny.
             </Font2>
-            <button className="px-[65px] pt-1 pb-2 border border-gray-600 text-black font-medium rounded-[55px]  mt-5 hover:text-white hover:border-none hover:bg-red-500 text-[20px] flex items-center justify-center">
+            {/* <button className="px-[65px] pt-1 pb-2 border border-gray-600 text-black font-medium rounded-[55px]  mt-5 hover:text-white hover:border-none hover:bg-red-500 text-[20px] flex items-center justify-center">
               Learn More
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

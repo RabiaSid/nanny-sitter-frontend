@@ -484,6 +484,7 @@ export default function AuthSignUp() {
           showToast("Signup failed. Please try again.", "error");
         });
     } else {
+      model.isActive = true;
       Post("auth/nanny-signup", model)
         .then((res) => {
           console.log("Full response:", res); // Log the entire response

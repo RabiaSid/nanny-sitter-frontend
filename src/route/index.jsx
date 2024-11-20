@@ -18,6 +18,7 @@ import Packages from "@/component/auth/packages/packages";
 import { useSelector } from "react-redux";
 import NotFound from "@/pages/not-found";
 import PaymentGateway from "../component/auth/payment-gateway";
+import AdminDashboard from "../pages/admin-dashboard/admin-dashboard";
 
 export default function AppRoutes() {
   const isSuccessfull = useSelector((state) => state?.user?.isSuccessfull);
@@ -54,6 +55,7 @@ export default function AppRoutes() {
           element={isSuccessfull === true && <Welcome />}
         />
         <Route path="/*" element={<NotFound />} />
+        <Route path="admin-dashboard/*" element={<AdminDashboard />} />
       </Routes>
     </>
   );

@@ -23,9 +23,12 @@ import { HiOutlineDotsVertical } from "react-icons/hi";
 
 const AllRequestCol = [
   { heading: "Sno", key: "Sno" },
-  { heading: "Location", key: "location" },
-  { heading: "Children Count", key: "childrenCount" },
-  { heading: "Children Ages", key: "childrenAges" },
+  { heading: "Region", key: "region" },
+  { heading: "Name", key: "firstName" },
+  { heading: "email", key: "email" },
+  // { heading: "Location", key: "location" },
+  // { heading: "Children Count", key: "childrenCount" },
+  // { heading: "Children Ages", key: "childrenAges" },
   { heading: "Status", key: "status" },
   { heading: "Detail", key: "detail" },
 ];
@@ -245,36 +248,84 @@ export default function DashboardHeader({ children, onClickSearch }) {
     Get("/booking/All")
       .then((res) => {
         if (res?.data) {
-          const AllUserData = res?.data.map((item, index) => ({
-            Sno: index + 1,
-            name: item.name,
-            email: item.email,
-            region: item.region,
-            location: item.location,
-            childrenCount: item.childrenCount,
-            childrenAges: item.childrenAges.join(", "), // Assuming `childrenAges` is an array
-            schedule: item.schedule,
-            status: (
-              <span
-                className={`font-bold ${
-                  item.status === "approved"
-                    ? "text-sky-800"
-                    : item.status === "pending"
-                    ? "text-green-800"
-                    : "text-red-800"
-                }`}
-              >
-                {item.status}
-              </span>
-            ),
-            detail: (
-              <button onClick={() => handleSubModel(item._id)}>
-                <HiOutlineDotsVertical />
-              </button>
-            ),
-          }));
-          setAllDatasource(AllUserData);
+          const bookingPromises2 = res.data.map((item, index) =>
+            Get(`/auth/${item.parentId}`).then((res) => {
+              const user = res?.data || {};
+              return {
+                Sno: index + 1,
+                location: item.location,
+                childrenCount: item.childrenCount,
+                childrenAges: item.childrenAges.join(", "),
+                schedule: item.schedule,
+                status: (
+                  <span
+                    className={`font-bold ${
+                      item.status === "approved"
+                        ? "text-sky-800"
+                        : item.status === "pending"
+                        ? "text-green-800"
+                        : "text-red-800"
+                    }`}
+                  >
+                    {item.status}
+                  </span>
+                ),
+                detail: (
+                  <button onClick={() => handleSubModel(item._id)}>
+                    <HiOutlineDotsVertical />
+                  </button>
+                ),
+                firstName: user.firstName,
+                email: user.email,
+                region: user.region,
+              };
+            })
+          );
+
+          // Resolve all booking promises
+          Promise.all(bookingPromises2)
+            .then((userData) => {
+              setAllDatasource(userData);
+            })
+            .catch((err) => {
+              console.error("Error resolving booking details:", err);
+            });
+        } else {
+          console.log("No bookings data found.");
+          setUserDatasource([]); // Set empty array if no data is returned
         }
+        // if (res?.data) {
+        //   const AllUserData = res?.data.map((item, index) => ({
+        //     Sno: index + 1,
+        //     name: item.name,
+        //     email: item.email,
+        //     region: item.region,
+        //     location: item.location,
+        //     childrenCount: item.childrenCount,
+        //     childrenAges: item.childrenAges.join(", "), // Assuming `childrenAges` is an array
+        //     schedule: item.schedule,
+        //     status: (
+        //       <span
+        //         className={`font-bold ${
+        //           item.status === "approved"
+        //             ? "text-sky-800"
+        //             : item.status === "pending"
+        //             ? "text-green-800"
+        //             : "text-red-800"
+        //         }`}
+        //       >
+        //         {item.status}
+        //       </span>
+        //     ),
+        //     detail: (
+        //       <button onClick={() => handleSubModel(item._id)}>
+        //         <HiOutlineDotsVertical />
+        //       </button>
+        //     ),
+        //   }
+        // ));
+        //   setAllDatasource(AllUserData);
+        // }
       })
       .catch((err) => {
         // console.log("Error fetching data:", err);
@@ -360,6 +411,8 @@ export default function DashboardHeader({ children, onClickSearch }) {
                 region: user.region,
                 status: booking.status,
                 message: booking.message,
+                childrenCount: booking.childrenCount,
+                childrenAges: booking.childrenAges,
               });
             })
             .catch((err) => {
@@ -720,31 +773,45 @@ export default function DashboardHeader({ children, onClickSearch }) {
             ref={requestModalRef}
           >
             {selected === false && (
-              <Table datasource={allDatasource} cols={AllRequestCol} />
+              <>
+                <Table datasource={allDatasource} cols={AllRequestCol} />
+                <div className="absolute top-[-5px] right-[-5px] bg-[#999999] rounded-full p-2">
+                  <CgClose
+                    size={24}
+                    color="#fff"
+                    onClick={() => {
+                      setRequestModelOpen(false);
+                    }}
+                  />
+                </div>
+              </>
             )}
             {selected === true && userDatasource.length > 0 && (
-              <Table datasource={userDatasource} cols={Request} />
+              <>
+                <Table datasource={userDatasource} cols={Request} />
+                <div className="absolute top-[-5px] right-[-5px] bg-[#999999] rounded-full p-2">
+                  <CgClose
+                    size={24}
+                    color="#fff"
+                    onClick={() => {
+                      setRequestModelOpen(false);
+                    }}
+                  />
+                </div>
+              </>
             )}
-            <div className="absolute top-[-5px] right-[-5px] bg-gray-950 rounded-full p-2">
-              <CgClose
-                size={24}
-                color="#fff"
-                onClick={() => {
-                  setRequestModelOpen(false);
-                }}
-              />
-            </div>
           </div>
+
           <div className="absolute top-2 w-[350px]">
-            <div className="relative w-full mt-4 rounded-md border h-10 p-1 bg-gray-200">
+            <div className="relative w-full mt-4 rounded-md border h-10 p-1 bg-[#999999]">
               <div className="relative w-full h-full flex items-center">
                 <div
                   onClick={() => setSelected(true)}
                   className={`${
                     selected === true
-                      ? "rounded-md bg-gray-950 text-white"
-                      : "text-gray-400 bg-transparent "
-                  } cursor-pointer w-full flex justify-center h-full border`}
+                      ? "rounded-md bg-[#FF6F61] "
+                      : " bg-transparent "
+                  } cursor-pointer w-full flex justify-center h-full text-white`}
                 >
                   <button>Your Request</button>
                 </div>
@@ -752,9 +819,9 @@ export default function DashboardHeader({ children, onClickSearch }) {
                   onClick={() => setSelected(false)}
                   className={`${
                     selected === false
-                      ? "rounded-md bg-gray-950 text-white"
-                      : "text-gray-400 bg-transparent "
-                  } cursor-pointer w-full flex justify-center h-full border`}
+                      ? "rounded-md bg-[#FF6F61] "
+                      : " bg-transparent "
+                  } cursor-pointer w-full flex justify-center h-full text-white`}
                 >
                   <button>All Request</button>
                 </div>
@@ -773,7 +840,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
             className="p-4 w-full max-w-[45%] max-h-full rounded-md"
             ref={subModalRef}
           >
-            <div className="bg-white px-8 rounded-md shadow-md border h-[500px] z-0 flex flex-col justify-center relative">
+            <div className="bg-white px-8 rounded-md shadow-md border py-10 z-0 flex flex-col justify-center relative">
               <h2 className="absolute font-bold text-lg top-3 left-[30%] right-[30%] text-center">
                 Booking Detail
               </h2>
@@ -810,27 +877,76 @@ export default function DashboardHeader({ children, onClickSearch }) {
                 </p>
               </div>
 
-              <h3 className="text-sm font-semibold">
-                Please update this booking status?
-              </h3>
-              <div className="flex my-2 gap-4">
-                <button
-                  className="rounded-full px-4 py-1 bg-blue-500/85 text-white"
-                  onClick={approvedBooking}
-                >
-                  Accept
-                </button>
-                <button className="rounded-full px-4 py-1 bg-red-600/85  text-white">
-                  Reject
-                </button>
-              </div>
-              <div className="my-4">
-                <TextArea type="text" label="Reason" rows={3} className="" />
-              </div>
-              <button className="rounded-full border px-4 py-1 bg-gray-950/85  text-white">
-                Submit
-              </button>
+              {userData?.role === "user" && (
+                <>
+                  <h2 className=" font-bold text-lg text-center">
+                    Child Detail
+                  </h2>
+                  <div className="mb-2">
+                    <h3 className="text-md font-semibold">Total Child:</h3>
+                    <p className="text-sm text-gray-800 italic ">
+                      {singleBooking?.childrenCount || "No message available."}
+                    </p>
+                  </div>
+                  <div className="mb-2 flex divide-x-2 ">
+                    {singleBooking?.childrenAges?.length > 0 ? (
+                      singleBooking.childrenAges.map((age, index) => (
+                        <div
+                          key={index}
+                          className={index === 0 ? "pe-4" : "px-4"}
+                        >
+                          <h3 className="text-md font-semibold">
+                            Child {index + 1}
+                          </h3>
+                          <p className="text-sm text-gray-800 ">{age}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <li>No message available.</li>
+                    )}
+                    {/* <h3 className="text-md font-semibold">Age Child:</h3>
+                    <ul className="text-sm text-gray-800 italic">
+                      {singleBooking?.childrenAges?.length > 0 ? (
+                        singleBooking.childrenAges.map((age, index) => (
+                          <li key={index}>{age}</li> // List each child's age in <li>
+                        ))
+                      ) : (
+                        <li>No message available.</li>
+                      )}
+                    </ul> */}
+                  </div>
+                </>
+              )}
 
+              {userData?.role === "nanny" && (
+                <>
+                  <h3 className="text-sm font-semibold">
+                    Please update this booking status?
+                  </h3>
+                  <div className="flex my-2 gap-4">
+                    <button
+                      className="rounded-full px-4 py-1 bg-blue-500/85 text-white"
+                      onClick={approvedBooking}
+                    >
+                      Accept
+                    </button>
+                    <button className="rounded-full px-4 py-1 bg-red-600/85  text-white">
+                      Reject
+                    </button>
+                  </div>
+                  <div className="my-4">
+                    <TextArea
+                      type="text"
+                      label="Reason"
+                      rows={3}
+                      className=""
+                    />
+                  </div>
+                  <button className="rounded-full border px-4 py-1 bg-gray-950/85  text-white">
+                    Submit
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => setSubModalOpen(false)}
                 className="absolute top-[-25px] left-[-25px]"

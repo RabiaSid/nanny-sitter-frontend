@@ -34,10 +34,14 @@ const ConditionalLayout = ({ children }) => {
   const showHelpHeader = ["/help", "/request"];
 
   // Check if the current path is in the list of paths where the header should be hidden
-  const shouldHideHeader = hideHeaderPaths.includes(location.pathname);
+  const shouldHideHeader =
+    hideHeaderPaths.includes(location.pathname) ||
+    location.pathname.startsWith("/admin-dashboard");
 
   // Check if the current path is in the list of paths where the footer should be hidden
-  const shouldHideFooter = hideFooterPaths.includes(location.pathname);
+  const shouldHideFooter =
+    hideFooterPaths.includes(location.pathname) ||
+    location.pathname.startsWith("/admin-dashboard");
 
   const shouldShowHelpHeader = showHelpHeader.includes(location.pathname);
 
