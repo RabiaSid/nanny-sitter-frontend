@@ -54,12 +54,22 @@ export default function ForFamily() {
     message: "",
     type: "",
   });
+  const [childCount, setChildCount] = useState(null);
   const [booking, setBooking] = useState({
-    parentId: userData._id,
+    parentId: userData?._id,
     nannyId: modalData._id,
+    location: userData?.region,
     message: "",
-    startTime: null,
-    endTime: null,
+    childrenCount: "",
+    childrenAges: [],
+    budget: "",
+    status: "pending",
+    schedule: "", // Single string that will contain combined days and timing, like "Monday Wednesday Friday Evening (4 PM - 8 PM)"
+    timing: "", // Timing selected from dropdown
+    selectedDays: [],
+    // budget: userData?.budget,
+    // startTime: null,
+    // endTime: null,
   });
 
   const fillModel = (key, val) => {
@@ -178,14 +188,32 @@ export default function ForFamily() {
 
   const newBooking = () => {
     booking.status = "pending";
+    // booking.budget = userData?.budget;
+    // booking.parentId = userData?._id;
+    // booking.nannyId = nannyId;
+    // booking.location = userData?.region;
     console.log("Booking data:", booking); // Debugging line
-    Post("booking", booking)
+    Post("booking/chatbot-Booking", booking)
+      // Post("booking", booking)
       .then((res) => {
         console.log(res?.data);
         if (res?.data) {
           // dispatch(add(res?.data?.user));
           showToast("Booking Successfully", "success");
           setModalOpen(false);
+          setBooking({
+            parentId: userData?._id,
+            nannyId: modalData._id,
+            location: userData?.region,
+            message: "",
+            childrenCount: "",
+            childrenAges: [],
+            budget: "",
+            status: "pending",
+            schedule: "",
+            timing: "",
+            selectedDays: [],
+          });
         } else {
           showToast("Unexpected response format.", "error");
         }
@@ -195,6 +223,70 @@ export default function ForFamily() {
         showToast("Login failed. Please check your credentials.", "error");
       });
   };
+
+  const handleChildCountChange = (e) => {
+    const newCount = parseInt(e.target.value) || 0; // Ensure it's a valid number
+    setChildCount(newCount);
+    setBooking((prevBooking) => ({
+      ...prevBooking,
+      childrenCount: newCount,
+      childrenAges: new Array(newCount).fill(""), // Reset children ages when count changes
+    }));
+  };
+
+  const handleAgeChange = (index, value) => {
+    const newAges = [...booking.childrenAges];
+    newAges[index] = value;
+    setBooking({ ...booking, childrenAges: newAges });
+  };
+
+  // Handle day selection
+  const handleDaySelection = (day) => {
+    // Check if the timing is selected
+    if (!booking.timing) {
+      alert("Please select a timing first.");
+      return;
+    }
+
+    // Toggle day selection
+    let updatedDays = [...booking.selectedDays];
+    if (updatedDays.includes(day)) {
+      // Remove the day if it's already selected
+      updatedDays = updatedDays.filter((item) => item !== day);
+    } else {
+      // Add the day if it's not selected
+      updatedDays.push(day);
+    }
+
+    // Update the selectedDays array
+    setBooking({
+      ...booking,
+      selectedDays: updatedDays,
+    });
+  };
+
+  // Handle timing selection
+  const handleTimingSelection = (e) => {
+    const selectedTiming = e.target.value;
+
+    // Update the timing in booking
+    setBooking({ ...booking, timing: selectedTiming });
+  };
+
+  // Generate the schedule string
+  const generateSchedule = () => {
+    if (booking.selectedDays.length === 0 || !booking.timing) {
+      return "";
+    }
+
+    // Create the schedule string: "Monday Wednesday Friday Evening (4 PM - 8 PM)"
+    return `${booking.selectedDays.join(" ")} ${booking.timing}`;
+  };
+
+  // Use the generated schedule
+  const schedule = generateSchedule();
+
+  booking.schedule = schedule;
 
   return (
     <>
@@ -297,7 +389,7 @@ export default function ForFamily() {
               {showBooking === true ? (
                 <>
                   <h3 className="text-lg font-bold mt-4 ">Booking</h3>
-                  <div className="mt-6 mb-4 grid grid-cols-2 gap-8">
+                  {/* <div className="mt-6 mb-4 grid grid-cols-2 gap-8">
                     <div className="flex flex-col border px-3 py-2 rounded-md relative">
                       <label className="w-[50px] font-semibold italic h-[25px] text-center absolute top-[-15px] bg-white">
                         Start
@@ -323,30 +415,156 @@ export default function ForFamily() {
                         onChange={(e) => fillModel("endTime", e.target.value)}
                       />
                     </div>
+                  </div> */}
+
+                  {/* Day Selection Buttons */}
+                  <div className="flex flex-wrap gap-1 my-2">
+                    {[
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                      "Sunday",
+                    ].map((day, index) => (
+                      <span
+                        key={index}
+                        onClick={() => handleDaySelection(day)}
+                        className={`py-1 px-3 border rounded-full text-gray-700 cursor-pointer text-sm ${
+                          booking.selectedDays.includes(day)
+                            ? "border-red-600 text-red-800"
+                            : ""
+                        }`}
+                      >
+                        {day}
+                      </span>
+                    ))}
                   </div>
 
-                  <div className="border-2 border-[#e5e7eb] flex  rounded-md">
+                  {/* Timing Selection Dropdown */}
+                  <select
+                    value={booking.timing}
+                    onChange={handleTimingSelection}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                  >
+                    <option value="">Select Timing</option>
+                    <option value="Morning (8 AM - 12 PM)">
+                      Morning (8 AM - 12 PM)
+                    </option>
+                    <option value="Afternoon (12 PM - 4 PM)">
+                      Afternoon (12 PM - 4 PM)
+                    </option>
+                    <option value="Evening (4 PM - 8 PM)">
+                      Evening (4 PM - 8 PM)
+                    </option>
+                    <option value="Night (8 PM - 12 AM)">
+                      Night (8 PM - 12 AM)
+                    </option>
+                  </select>
+
+                  <div>
+                    <h3 className="text-sm font-semibold">
+                      Selected Schedule:
+                    </h3>
+                    <p className="text-sm">
+                      {schedule ? schedule : "No schedule selected"}
+                    </p>
+                  </div>
+                  <div className="my-2">
                     <input
                       type="text"
-                      placeholder="Your budget"
-                      // value={formData.budget}
-                      // onChange={(e) =>
-                      //   setFormData({ ...formData, budget: e.target.value })
-                      // }
+                      disabled={userData?.budget ? true : false}
+                      placeholder={
+                        userData?.budget
+                          ? userData?.budget
+                          : "Enter Your budget"
+                      }
+                      value={
+                        userData?.budget ? userData?.budget : booking.budget
+                      }
+                      onChange={(e) =>
+                        setBooking({ ...booking, budget: e.target.value })
+                      }
+                      className="flex h-10 w-full rounded-md border border-[#e5e7eb] px-3 py-2 text-sm"
+                    />
+                  </div>
+
+                  <div className="">
+                    <h3 className="text-sm font-semibold">
+                      Number of children
+                    </h3>
+                    <input
+                      type="number"
+                      placeholder="Number of children"
+                      value={booking.childrenCount || ""}
+                      onChange={handleChildCountChange}
+                      className="flex mt-2 h-10 w-full border-[1px] rounded-md px-3 py-2 text-sm focus:outline-none"
+                    />
+                  </div>
+
+                  <div className=" flex gap-2">
+                    {Array.from({ length: booking.childrenCount }).map(
+                      (_, index) => (
+                        <div key={index} className="mt-2 max-w-[150px]">
+                          <input
+                            type="number"
+                            value={booking.childrenAges[index] || ""}
+                            onChange={(e) =>
+                              handleAgeChange(index, e.target.value)
+                            }
+                            placeholder={`Age of Child ${index + 1}`}
+                            className="flex h-10 w-full px-3 py-2 text-sm border-[1px] rounded-sm focus:outline-none"
+                          />
+                        </div>
+                      )
+                    )}
+                  </div>
+
+                  {/* <div className="border-[1px] border-[#e5e7eb] flex  rounded-md">
+                    <input
+                      type="number"
+                      placeholder="Number of children"
+                      value={booking.childrenCount}
+                      onChange={(e) =>
+                        fillModel({
+                          ...booking,
+                          childrenCount: e.target.value,
+                        })
+                      }
                       className="flex h-10 w-full px-3 py-2 text-sm"
                     />
-                    <button className="px-4 bg-red-500  rounded-r-md text-white">
+                    <button className="px-4 bg-red-500  rounded-r-sm text-white">
                       Add
                     </button>
                   </div>
 
-                  <div className="mt-8 mb-4">
+                  <div className="border-[1px] flex  ">
+                    {Array.from({ length: booking.childrenCount }).map(
+                      (_, index) => (
+                        <div key={index} className="my-2">
+                          <input
+                            type="number"
+                            value={booking.childrenAges[index] || ""}
+                            onChange={(e) => {
+                              const newAges = [...booking.childrenAges];
+                              newAges[index] = e.target.value;
+                              setBooking({ ...booking, childrenAges: newAges });
+                            }}
+                            placeholder={`Age of Child ${index + 1}`}
+                            className="flex h-10 w-full px-3 py-2 text-sm"
+                          />
+                        </div>
+                      )
+                    )}
+                  </div> */}
+                  <div className="my-4">
                     <TextArea
                       type="text"
                       label="Message"
                       value={booking.message || ""}
                       onChange={(e) => fillModel("message", e.target.value)}
-                      rows={8}
+                      rows={5}
                       className=""
                     />
                   </div>

@@ -1,14 +1,13 @@
-// import { ReactNode } from "react";
-// import { profile } from "../../../assets";
-// import Button from "../../button/primary-button";
-// import { fbSignout } from "../../../config/firebase/firebase-methods";
-// import { useNavigate } from "react-router-dom";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { TbSmartHome } from "react-icons/tb";
 import { GoPerson } from "react-icons/go";
 import { BsBroadcastPin } from "react-icons/bs";
 import { Logo } from "@/assets";
+import NotFound from "@/pages/not-found";
+import AdminDashboardMain from "./home";
+import Users from "./user";
+import Bookings from "./booking";
 
 const pagesArr = [
   {
@@ -17,30 +16,21 @@ const pagesArr = [
   },
   {
     icon: <GoPerson size={32} color="#999999" />,
-    route: "result",
+    route: "users",
   },
   {
     icon: <BsBroadcastPin size={30} color="#999999" />,
-    route: "quiz",
+    route: "bookings",
   },
-  // {
-  //   name: "Login",
-  //   route: "login",
-  //   // icon: <BsPeople />,
-  // },
 ];
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const userData = useSelector((a) => a.user);
   console.log(userData);
-  //   const navigate = useNavigate();
-  //   const { userName, children, RouteContent } = props;
 
   //   const SignOut = () => {
-  //     fbSignout().then(() => {
-  //       navigate("/sign-in");
-  //     });
+
   //   };
 
   return (
@@ -73,16 +63,13 @@ export default function AdminDashboard() {
             {/* <Button label="Sign out" onClick={SignOut} /> */}
           </div>
         </div>
-        <div className="col-span-11 md:col-span-4 bg-[#ffffff]">
-          <div className="grid grid-cols-1 p-5">
-            {/* <Routes>
-               <Route path="" element={<RegistrationForm />} />
-              <Route path="result" element={<Result />} />
-              <Route path="quiz" element={<Quiz />} />
-               <Route path="login" element={<Login />} />
-              <Route path="*" element={<NotFound />} /> 
-            </Routes> */}
-          </div>
+        <div className="col-span-11 bg-[#ffffff] relative">
+          <Routes>
+            <Route path="" element={<AdminDashboardMain />} />
+            <Route path="bookings" element={<Bookings />} />
+            <Route path="users" element={<Users />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </div>
       </div>
     </div>
