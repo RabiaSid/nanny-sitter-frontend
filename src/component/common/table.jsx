@@ -1,19 +1,24 @@
 import React from "react";
 
-const Table = ({ label, datasource, cols, tableHeaderClass }) => {
+const Table = ({ label, datasource, cols, tableHeaderClass, tableClass }) => {
   return (
-    <div className="overflow-y-scroll  max-h-[420px]">
+    <div
+      className={tableClass ? tableClass : "overflow-y-scroll  max-h-[420px]"}
+    >
       <table className=" bg-white shadow-md w-full">
         <thead
           className={
             tableHeaderClass
               ? tableHeaderClass
-              : "bg-rose-600 text-white sticky top-0 right-0"
+              : "bg-red-600 text-white sticky top-0 right-0 capitalize font-montserrat"
           }
         >
           <tr>
             {cols.map((col, index) => (
-              <th key={index} className="px-4 py-4 text-left text-md">
+              <th
+                key={index}
+                className="px-4 py-4 text-left text-md font-medium"
+              >
                 {col.heading}
               </th>
             ))}

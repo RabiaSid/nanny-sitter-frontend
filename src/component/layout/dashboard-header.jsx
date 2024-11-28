@@ -256,7 +256,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                 schedule: item.schedule,
                 status: (
                   <span
-                    className={`font-bold ${
+                    className={`font-bold capitalize ${
                       item.status === "approved"
                         ? "text-sky-800"
                         : item.status === "pending"
@@ -347,7 +347,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                 schedule: item.schedule,
                 status: (
                   <span
-                    className={`font-bold ${
+                    className={`font-bold capitalize ${
                       item.status === "approved"
                         ? "text-sky-800"
                         : item.status === "pending"
@@ -885,13 +885,10 @@ export default function DashboardHeader({ children, onClickSearch }) {
                       {singleBooking?.childrenCount || "No message available."}
                     </p>
                   </div>
-                  <div className="mb-2 flex divide-x-2 ">
+                  <div className=" flex divide-x-2 flex-wrap gap-2">
                     {singleBooking?.childrenAges?.length > 0 ? (
                       singleBooking.childrenAges.map((age, index) => (
-                        <div
-                          key={index}
-                          className={index === 0 ? "pe-4" : "px-4"}
-                        >
+                        <div key={index} className="px-4">
                           <h3 className="text-md font-semibold">
                             Child {index + 1}
                           </h3>
