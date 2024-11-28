@@ -371,7 +371,7 @@ export default function Bookings() {
           </div>
         </div>
       </div>
-      <div className="flex gap-4 py-6">
+      <div className="flex gap-4 pt-2">
         <Table
           tableClass="overflow-y-scroll max-h-[420px] border w-full"
           tableHeaderClass="bg-sky-700 w-full text-white sticky top-0 capitalize font-montserrat"
