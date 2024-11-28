@@ -22,7 +22,9 @@ import AdminDashboard from "../pages/admin-dashboard/admin-dashboard";
 
 export default function AppRoutes() {
   const isSuccessfull = useSelector((state) => state?.user?.isSuccessfull);
+  const isAdmin = useSelector((state) => state?.user?.role);
   console.log(isSuccessfull);
+  console.log(isAdmin);
 
   return (
     <>
@@ -55,7 +57,10 @@ export default function AppRoutes() {
           element={isSuccessfull === true && <Welcome />}
         />
         <Route path="/*" element={<NotFound />} />
-        <Route path="admin-dashboard/*" element={<AdminDashboard />} />
+        <Route
+          path="admin-dashboard/*"
+          element={isAdmin === "admin" && <AdminDashboard />}
+        />
       </Routes>
     </>
   );

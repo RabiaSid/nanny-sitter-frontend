@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AuthBg from "@/assets/auth/auth-bg.png";
 import { H6, Font2 } from "@/config/typography";
 import InputField from "@/component/common/input";
@@ -11,8 +11,18 @@ import line from "@/assets/auth/horizental.png";
 import { storeData } from "@/config/helper";
 import { useDispatch } from "react-redux";
 import { add } from "@/redux/reducers/userSlice";
+import OTPInput from "@/component/common/otpField";
 
 export default function AuthSignIn() {
+  // component state
+  const [login, setLogin] = useState(true);
+  const [forgetpassword, setForgetPassword] = useState(false);
+  const [Otp, setOtp] = useState(false);
+  const [otpData, setOtpData] = useState({});
+  const [resetPassword, setResetPassword] = useState(false);
+  const [timer, setTimer] = useState(600); // 2 minutes
+  const [checkOtp, setCheck] = useState(true);
+  // logic state
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [model, setModel] = useState({});
@@ -21,12 +31,6 @@ export default function AuthSignIn() {
     message: "",
     type: "",
   });
-  // const googleAuth = () => {
-  // 	window.open(
-  // 		`http://localhost:5000/auth/google/callback`,
-  // 		"_self"
-  // 	);
-  // };
 
   const fillModel = (key, val) => {
     setModel((prevModel) => ({
@@ -38,7 +42,6 @@ export default function AuthSignIn() {
   const showToast = (message, type) => {
     setToast({ isVisible: true, message, type });
 
-    // Auto-hide after 3 seconds
     setTimeout(() => {
       setToast({ ...toast, isVisible: false });
     }, 3000);
@@ -57,7 +60,13 @@ export default function AuthSignIn() {
         if (res?.data) {
           dispatch(add(res?.data?.user));
           storeData("token", res.data?.token);
-          navigate("/welcome-dashboard", { state: { loggedIn: true } });
+
+          navigate(
+            res?.data?.user?.role === "admin"
+              ? "/admin-dashboard"
+              : "/welcome-dashboard",
+            { state: { loggedIn: true } }
+          );
         } else {
           showToast("Unexpected response format.", "error");
         }
@@ -71,6 +80,80 @@ export default function AuthSignIn() {
   const googleAuth = () => {
     window.open(`http://localhost:5000/auth/google/callback`, "_self");
   };
+
+  const handleForgetPassword = () => {
+    setLogin(false);
+    setForgetPassword(true);
+  };
+
+  const handleOtp = () => {
+    if (!model.email) {
+      showToast("Email is required.", "error");
+      return;
+    }
+    Post("auth/forgotpassword", model)
+      .then((res) => {
+        console.log("Response data:", res?.data);
+        setOtpData({ ...res?.data });
+        console.log("otp data:", otpData);
+        setForgetPassword(false);
+        setOtp(true);
+        showToast("OTP sent to your email", "success");
+      })
+      .catch((err) => {
+        console.log("Error:", err);
+        showToast("Login failed. Please check your credentials.", "error");
+      });
+  };
+  const handleOtpComplete = (otp) => {
+    console.log("OTP entered:", otp);
+    setOtp(false);
+    setResetPassword(true);
+  };
+
+  console.log(otpData.resetPasswordOTP);
+  console.log(otpData.resetPasswordToken);
+
+  const RecoverPassword = () => {
+    model.resetToken = otpData.resetPasswordToken;
+    model.otp = otpData.resetPasswordOTP;
+
+    Post("auth/resetpassword", model)
+      .then((res) => {
+        console.log("Response data:", res?.data);
+        showToast("Password Recover Successfully", "success");
+        setLogin(true);
+        setResetPassword(false);
+      })
+      .catch((err) => {
+        console.log("Error:", err);
+        showToast(err.message, "error");
+      });
+  };
+
+  useEffect(() => {
+    console.log("Updated otpData:", otpData);
+  }, [otpData]);
+
+  // Countdown logic
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timer]);
+
+  // Format timer as "mm:ss"
+  const formatTime = () => {
+    const minutes = Math.floor(timer / 60);
+    const seconds = timer % 60;
+    return `${minutes < 10 ? `0${minutes}` : minutes}:${
+      seconds < 10 ? `0${seconds}` : seconds
+    }`;
+  };
+
   return (
     <>
       <div
@@ -78,72 +161,187 @@ export default function AuthSignIn() {
         style={{ background: `url(${AuthBg}) 100% 100% / cover no-repeat` }}
       >
         <div className="flex justify-center items-center m-auto pt-[50px]">
-          <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
-            <div className="border-b border-gray-300 relative">
-              <button
-                className="absolute top-[40%] left-[30px]"
-                onClick={() => {
-                  navigate("/");
-                }}
-              >
-                {" "}
-                <BackArrow />
-              </button>{" "}
-              <H6 className=" mb-2 xl:mb-3 text-center py-3 capitalize ">
-                Log In
-              </H6>
-            </div>
-            <div className="w-2/3 mx-auto text-center pb-14 pt-8">
-              <div className="mb-[35px]">
-                <InputField
-                  type="text"
-                  label="Email*"
-                  value={model.email || ""}
-                  onChange={(e) => fillModel("email", e.target.value)}
-                  className="input-class"
-                />
+          {login && (
+            <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
+              <div className="border-b border-gray-300 relative py-3">
+                <button
+                  className="absolute top-[40%] left-[30px]"
+                  onClick={() => {
+                    navigate("/");
+                  }}
+                >
+                  {" "}
+                  <BackArrow />
+                </button>{" "}
+                <H6 className="text-center py-3 capitalize ">Log In</H6>
               </div>
+              <div className="w-2/3 mx-auto text-center pb-14 pt-8">
+                <div className="mb-[35px]">
+                  <InputField
+                    type="text"
+                    label="Email*"
+                    value={model.email || ""}
+                    onChange={(e) => fillModel("email", e.target.value)}
+                    className="input-class"
+                  />
+                </div>
 
-              <div className="">
-                <InputField
-                  type="password"
-                  label="Password*"
-                  value={model.password || ""}
-                  onChange={(e) => fillModel("password", e.target.value)}
-                  className="input-class"
-                />
-              </div>
+                <div className="">
+                  <InputField
+                    type="password"
+                    label="Password*"
+                    value={model.password || ""}
+                    onChange={(e) => fillModel("password", e.target.value)}
+                    inputClass="bg-transparent mt-4 px-6 py-3 rounded-full border-gray-300 border
+                     text-gray-900 text-sm  block w-full 
+                      focus:outline-none"
+                  />
+                  <Font2 className="pt-0 mt-0 pb-2 text-end me-2">
+                    <span
+                      className="text-[#666666] text-xs italic"
+                      onClick={handleForgetPassword}
+                    >
+                      Forget Password{" "}
+                    </span>{" "}
+                  </Font2>
+                </div>
 
-              <Font2 className="pt-1 pb-2 text-start">
-                <span className="text-[#666666]">Forget Password </span>{" "}
-              </Font2>
-              <Button
-                className="w-[100%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mt-2 mb-4"
-                onClick={save}
-              >
-                Next
-              </Button>
-              <img src={line} />
-              {/* <Button
+                <Button
+                  className="w-[100%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mt-2 mb-4"
+                  onClick={save}
+                >
+                  Next
+                </Button>
+                <img src={line} />
+                {/* <Button
               className="w-[100%] rounded-[35px] py-2 px-6 border border-gray-300 text-[#666666] text-center text-[22px] relative mt-4 mb-2"
               onClick={googleAuth}
             >
               <img src={icon} className="h-[35px] absolute left-[20%]" /> Sign
               in with Google
             </Button> */}
-              <Font2 className="pt-4 text-center">
-                <span className="text-[#666666]">Don't have an account? </span>{" "}
-                <span
-                  className="text-[#ff6f61] cursor-pointer"
+                <Font2 className="pt-4 text-center">
+                  <span className="text-[#666666]">
+                    Don't have an account?{" "}
+                  </span>{" "}
+                  <span
+                    className="text-[#ff6f61] cursor-pointer"
+                    onClick={() => {
+                      navigate("/auth/sign-up");
+                    }}
+                  >
+                    Get Started{" "}
+                  </span>
+                </Font2>
+              </div>
+            </div>
+          )}
+          {forgetpassword && (
+            <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
+              <div className="border-b border-gray-300 relative py-3">
+                <button
+                  className="absolute top-[40%] left-[30px]"
                   onClick={() => {
-                    navigate("/auth/sign-up");
+                    navigate("/");
                   }}
                 >
-                  Get Started{" "}
-                </span>
-              </Font2>
+                  {" "}
+                  <BackArrow />
+                </button>{" "}
+                <H6 className=" text-center py-3 capitalize h-full">
+                  Forget Password
+                </H6>
+              </div>
+              <div className="w-2/3 mx-auto text-center pb-8 pt-8">
+                <Font2 className="text-sm text-[#666] text-center mb-4">
+                  Reset your password by receiving create password link on your
+                  registered Email ID please enter your registered Email Id
+                  Below
+                </Font2>
+                <div className="">
+                  <InputField
+                    type="text"
+                    label="Email*"
+                    value={model.email || ""}
+                    onChange={(e) => fillModel("email", e.target.value)}
+                    className="input-class"
+                  />
+                </div>
+                <Button
+                  className="w-[100%] rounded-[35px] py-1 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mb-4"
+                  onClick={handleOtp}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
+          {Otp && (
+            <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
+              <div className="border-b border-gray-300 relative py-3">
+                <button
+                  className="absolute top-[40%] left-[30px]"
+                  onClick={() => {
+                    navigate("/");
+                  }}
+                >
+                  {" "}
+                  <BackArrow />
+                </button>{" "}
+                <H6 className=" text-center py-3 capitalize h-full">
+                  OTP Verification
+                </H6>
+              </div>
+              <div className="w-2/3 mx-auto text-center pb-8 pt-8">
+                <Font2 className="text-sm text-[#666] text-center mb-4">
+                  Reset your password by receiving create password link on your
+                  registered Email...
+                </Font2>
+                <div className="mb-3">
+                  <OTPInput length={6} onComplete={handleOtpComplete} />
+                  <p className="italic text-end text-sm pt-1">{formatTime()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          {resetPassword && (
+            <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
+              <div className="border-b border-gray-300 relative py-3">
+                <button
+                  className="absolute top-[40%] left-[30px]"
+                  onClick={() => {
+                    navigate("/");
+                  }}
+                >
+                  {" "}
+                  <BackArrow />
+                </button>{" "}
+                <H6 className="text-center py-3 capitalize ">
+                  Re-set Password
+                </H6>
+              </div>
+              <div className="w-2/3 mx-auto text-center pb-14 pt-8">
+                <div className="">
+                  <InputField
+                    type="password"
+                    label="New Password*"
+                    value={model.password || ""}
+                    onChange={(e) => fillModel("password", e.target.value)}
+                    inputClass="bg-transparent mt-4 px-6 py-3 rounded-full border-gray-300 border
+                     text-gray-900 text-sm  block w-full 
+                      focus:outline-none"
+                  />
+                </div>
+
+                <Button
+                  className="w-[100%] rounded-[35px] py-1 px-6 bg-[#FF6F61] text-white text-[22px] font-bold mt-2 mb-4"
+                  onClick={RecoverPassword}
+                >
+                  submit
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

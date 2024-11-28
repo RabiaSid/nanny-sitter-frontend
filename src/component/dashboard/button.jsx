@@ -1,10 +1,11 @@
 import React, { Children } from "react";
 
 export default function Button(props) {
-  const { text, onClick, className, children } = props;
+  const { text, onClick, className, children, disabled } = props;
 
   return (
     <button
+      disabled={disabled}
       onClick={onClick}
       className={
         className

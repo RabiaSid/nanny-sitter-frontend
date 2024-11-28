@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AuthBg from "@/assets/auth/auth-bg.png";
 import imgbaby from "@/assets/auth/outline.png";
 import { Font1, H6, Font2 } from "@/config/typography";
@@ -20,6 +20,8 @@ import { storeData } from "@/config/helper";
 import { useDispatch } from "react-redux";
 import { add } from "@/redux/reducers/userSlice";
 import personImg from "../../assets/auth/image.jpg";
+import { Close } from "@/config/app-constant";
+import OTPInput from "@/component/common/otpField";
 
 // Array of nanny questions
 const nanny = [
@@ -264,6 +266,10 @@ export default function AuthSignUp() {
     message: "",
     type: "",
   });
+  const [isModalOpen, setModalOpen] = useState(false);
+  const modalRef = useRef(null);
+  const [otpData, setOtpData] = useState({});
+  const [timer, setTimer] = useState(600); // 2 minutes
 
   const showToast = (message, type) => {
     setToast({ isVisible: true, message, type });
@@ -448,63 +454,68 @@ export default function AuthSignUp() {
     window.open(`http://localhost:5000/auth/google/callback`, "_self");
   };
 
-  const save = () => {
-    if (
-      !model.email ||
-      !model.password ||
-      !model.firstName ||
-      !model.lastName
-    ) {
-      showToast("All fields are required.", "error");
-      return;
-    }
-
-    model.isSuccessfull = true;
-    model.id = 1;
-    model.image = personImg;
-
-    console.log("Model being sent:", { ...model }); // Log the model
-
-    if (model.role === "user") {
-      Post("auth/user-signup", model)
-        .then((res) => {
-          console.log("Full response:", res); // Log the entire response
-          console.log(
-            res?.data + "kzxlcjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"
-          );
-          console.log(res?.data + "0000000000000000000000000000000000000000");
-
-          // Adjusted dispatch to directly use the user data from the response
-          dispatch(add(res.data)); // Assuming the user details are directly in res.data
-          storeData("token", res.data.token);
-          navigate("/package", { state: { loggedIn: true } });
-        })
-        .catch((err) => {
-          console.error(err.response ? err.response.data : err.message); // More detailed error logging
-          showToast("Signup failed. Please try again.", "error");
-        });
-    } else {
-      model.isActive = true;
-      Post("auth/nanny-signup", model)
-        .then((res) => {
-          console.log("Full response:", res); // Log the entire response
-          console.log(
-            res?.data + "kzxlcjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj"
-          );
-          console.log(res?.data + "0000000000000000000000000000000000000000");
-
-          dispatch(add(res.data));
-          storeData("token", res.data.token);
-          navigate("/welcome-dashboard", { state: { loggedIn: true } });
-        })
-        .catch((err) => {
-          console.error(err.response ? err.response.data : err.message);
-          console.log(err);
-          showToast("Signup failed. Please try again.", "error");
-        });
-    }
+  const handleOtp = () => {
+    Post("auth/send-otp", model)
+      .then((res) => {
+        console.log("Full response:", res); // Log the entire response
+        setOtpData({ ...res?.data });
+        console.log("otp data:", otpData);
+        setModalOpen(true);
+      })
+      .catch((err) => {
+        console.error(err.response ? err.response.data : err.message); // More detailed error logging
+        showToast("Signup failed. Please try again.", "error");
+      });
   };
-  console.log({ ...model });
+
+  const handleOtpComplete = (otp) => {
+    console.log("OTP entered:", otp);
+    model.otp = otp;
+  };
+
+  useEffect(() => {
+    console.log("Updated otpData:", otpData);
+  }, [otpData]);
+
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timer]);
+
+  // Format timer as "mm:ss"
+  const formatTime = () => {
+    const minutes = Math.floor(timer / 60);
+    const seconds = timer % 60;
+    return `${minutes < 10 ? `0${minutes}` : minutes}:${
+      seconds < 10 ? `0${seconds}` : seconds
+    }`;
+  };
+
+  const signup = () => {
+    console.log(model);
+    Post("auth/signup", model)
+      .then((res) => {
+        console.log("Response received:", res);
+        console.log("Response data:", res.data);
+        setModalOpen(false);
+        dispatch(add(res?.data));
+        storeData("token", res.data?.token);
+        model.role === "user" &&
+          navigate("/package", { state: { loggedIn: true } });
+        model.role === "nanny" &&
+          navigate("/welcome-dashboard", { state: { loggedIn: true } });
+        model.role === "admin" &&
+          navigate("/admin-dashboard", { state: { loggedIn: true } });
+      })
+      .catch((err) => {
+        console.error(err.response ? err.response.data : err.message);
+        showToast("Signup failed. Please try again.", "error");
+      });
+  };
 
   return (
     <>
@@ -516,10 +527,8 @@ export default function AuthSignUp() {
           {step === 0 && (
             <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md">
               {/* <form> */}
-              <div className="border-b border-gray-300">
-                <H6 className="pB-5 mb-2 xl:mb-3 capitalize text-center py-3">
-                  Sign Up
-                </H6>
+              <div className="border-b border-gray-300 relative py-3">
+                <H6 className=" capitalize text-center py-3">Sign Up</H6>
               </div>
               <div className="w-2/3 mx-auto text-center pb-14 pt-8">
                 <Font1 className="pb-5">
@@ -572,10 +581,8 @@ export default function AuthSignUp() {
           {step === 1 && (
             <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md">
               {/* <form> */}
-              <div className="border-b border-gray-300">
-                <H6 className="pB-5 mb-2 xl:mb-3 capitalize text-center py-3">
-                  Country
-                </H6>
+              <div className="border-b border-gray-300 relative py-3">
+                <H6 className=" capitalize text-center py-3">Country</H6>
               </div>
               <div className="w-2/3 mx-auto text-center pb-14 pt-8">
                 <Font1 className="pb-5">
@@ -637,7 +644,7 @@ export default function AuthSignUp() {
           {currentQuestion && !afterAllStep() && (
             <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md">
               {/* <form> */}
-              <div className="border-b border-gray-300 relative">
+              <div className="border-b border-gray-300 relative py-3">
                 <button
                   className="absolute top-[40%] left-[30px]"
                   onClick={handleBack}
@@ -645,9 +652,7 @@ export default function AuthSignUp() {
                   {" "}
                   <BackArrow />
                 </button>{" "}
-                <H6 className=" mb-2 xl:mb-3 text-center py-3 capitalize ">
-                  sign up
-                </H6>
+                <H6 className=" text-center py-3 capitalize ">sign up</H6>
               </div>
               <div className="w-2/3 mx-auto text-center pb-14 pt-8">
                 {currentQuestion && (
@@ -698,7 +703,7 @@ export default function AuthSignUp() {
             <>
               <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
                 {/* <form> */}
-                <div className="border-b border-gray-300 relative">
+                <div className="border-b border-gray-300 relative py-3">
                   <button
                     className="absolute top-[40%] left-[30px]"
                     onClick={handleBack}
@@ -706,12 +711,10 @@ export default function AuthSignUp() {
                     {" "}
                     <BackArrow />
                   </button>{" "}
-                  <H6 className=" mb-2 xl:mb-3 text-center py-3 capitalize ">
-                    sign up
-                  </H6>
+                  <H6 className=" text-center py-3 capitalize ">sign up</H6>
                 </div>
                 <div className="w-2/3 mx-auto text-center pb-14 pt-8">
-                  <Font1 className="pb-5">set your account</Font1>
+                  <Font1 className="pb-5 capitalize">set your account</Font1>
                   {/* <Button
                   className="w-[100%] rounded-[35px] mb-4 py-2 flex justify-center border border-gray-300 text-[#666666] text-center text-[22px] relative"
                   onClick={googleAuth}
@@ -756,7 +759,7 @@ export default function AuthSignUp() {
           {chooseStep === true && (
             <div className="bg-white w-[97%] md:w-[85%] lg:w-[60%] xl:w-[40%] border shadow-lg rounded-md ">
               {/* <form> */}
-              <div className="border-b border-gray-300 relative">
+              <div className="border-b border-gray-300 relative py-3">
                 {/* <button
                   className="absolute top-[40%] left-[30px]"
                   onClick={handleBack}
@@ -764,12 +767,10 @@ export default function AuthSignUp() {
                   {" "}
                   <BackArrow />
                 </button>{" "} */}
-                <H6 className=" mb-2 xl:mb-3 text-center py-3 capitalize ">
-                  sign up
-                </H6>
+                <H6 className=" text-center py-3 capitalize ">sign up</H6>
               </div>
               <div className="w-2/3 mx-auto text-center pb-14 pt-8">
-                <Font1 className="pb-5">set your account</Font1>
+                <Font1 className="pb-5 capitalize">set your account</Font1>
                 <div className="mb-[35px]">
                   <InputField
                     type="text"
@@ -817,19 +818,20 @@ export default function AuthSignUp() {
                 <Button
                   className="w-[100%] rounded-[35px] py-2 px-6 bg-[#FF6F61] text-white text-[22px] font-bold"
                   // onClick={handlePackage}
-                  onClick={save}
+                  // onClick={save}
+                  onClick={handleOtp}
                 >
                   Next
                 </Button>
-                <Font2 className="pt-4 text-start">
+                <Font2 className="pt-4 text-start ">
                   <span className="text-[#666666]">
                     Already have an account?{" "}
                   </span>{" "}
                   <span
-                    className="text-[#ff6f61]"
-                    // onClick={() => {
-                    //   navigate("/auth/sign-in");
-                    // }}
+                    className="text-[#ff6f61] cursor-pointer"
+                    onClick={() => {
+                      navigate("/auth/sign-in");
+                    }}
                   >
                     Login
                   </span>
@@ -850,6 +852,42 @@ export default function AuthSignUp() {
           isVisible={toast.isVisible}
           onClose={() => setToast({ ...toast, isVisible: false })}
         />
+        {isModalOpen && (
+          <div
+            id="static-modal"
+            className="fixed top-0 right-0 left-0  flex justify-center items-center w-full h-full bg-transparent bg-opacity-0 "
+          >
+            <div
+              className="p-4 w-full max-w-[55%] max-h-full rounded-md border bg-white shadow-2xl relative"
+              ref={modalRef}
+            >
+              <div className="flex my-[25px] flex-col">
+                <H6 className=" text-center py-1 capitalize h-full">
+                  OTP Verification
+                </H6>
+                <Font2 className="text-sm text-[#666] text-center mb-4">
+                  please enter otp you get in your email
+                </Font2>
+                <div>
+                  <OTPInput length={6} onComplete={handleOtpComplete} />
+                  <p className="italic text-end text-sm pt-1">{formatTime()}</p>
+                </div>
+                <Button
+                  className="w-[100%] rounded-[35px] py-1 mt-5 px-6 bg-[#FF6F61] text-white text-[22px] font-bold"
+                  onClick={signup}
+                >
+                  confirm
+                </Button>
+              </div>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="absolute top-[-15px] right-[-15px]"
+              >
+                <Close />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

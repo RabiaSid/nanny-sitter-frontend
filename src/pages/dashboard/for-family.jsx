@@ -188,18 +188,12 @@ export default function ForFamily() {
 
   const newBooking = () => {
     booking.status = "pending";
-    // booking.budget = userData?.budget;
-    // booking.parentId = userData?._id;
-    // booking.nannyId = nannyId;
-    // booking.location = userData?.region;
-    console.log("Booking data:", booking); // Debugging line
-    Post("booking/chatbot-Booking", booking)
-      // Post("booking", booking)
+    console.log("Booking data:", booking);
+    Post("booking", booking)
       .then((res) => {
         console.log(res?.data);
         if (res?.data) {
-          // dispatch(add(res?.data?.user));
-          showToast("Booking Successfully", "success");
+          showToast("Booking is Success", "success");
           setModalOpen(false);
           setBooking({
             parentId: userData?._id,
@@ -225,12 +219,12 @@ export default function ForFamily() {
   };
 
   const handleChildCountChange = (e) => {
-    const newCount = parseInt(e.target.value) || 0; // Ensure it's a valid number
+    const newCount = parseInt(e.target.value) || 0;
     setChildCount(newCount);
     setBooking((prevBooking) => ({
       ...prevBooking,
       childrenCount: newCount,
-      childrenAges: new Array(newCount).fill(""), // Reset children ages when count changes
+      childrenAges: new Array(newCount).fill(""),
     }));
   };
 

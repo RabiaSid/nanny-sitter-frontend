@@ -26,9 +26,6 @@ const AllRequestCol = [
   { heading: "Region", key: "region" },
   { heading: "Name", key: "firstName" },
   { heading: "email", key: "email" },
-  // { heading: "Location", key: "location" },
-  // { heading: "Children Count", key: "childrenCount" },
-  // { heading: "Children Ages", key: "childrenAges" },
   { heading: "Status", key: "status" },
   { heading: "Detail", key: "detail" },
 ];

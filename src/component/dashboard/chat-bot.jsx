@@ -168,12 +168,12 @@ export default function ChatBot() {
 
     setLoading(true); // Show loading indicator
 
-    Post("booking/chatbot-Booking", formData)
+    Post("booking", formData)
       .then((res) => {
         setLoading(false); // Hide loading indicator
         setStepBookNanny(0);
         if (res?.data) {
-          showToast("Booking Successfully", "success");
+          showToast("Booking is Success", "success");
           setIsOpen(false);
           setStepBookNanny(0);
         } else {

@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'CreatoDisplay';
+  font-family: "CreatoDisplay";
   /* Match this name with your utility class */
-  src: url('@/assets/fonts/CreatoDisplay-Regular.otf') format('woff2'),
-    url('@/assets/fonts/CreatoDisplay-Bold.otf') format('woff');
+  src: url("@/assets/fonts/CreatoDisplay-Regular.otf") format("woff2"),
+    url("@/assets/fonts/CreatoDisplay-Bold.otf") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -17,6 +17,7 @@ body {
 
 .font-creato {
   font-family: "CreatoDisplay", sans-serif;
+  /* color:#4bc0c033 */
   /* Use 'CreatoDisplay' here */
 }
 
@@ -34,11 +35,11 @@ body {
 }
 
 .underline-animation::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   bottom: -3px;
-  width: 45px;  /* Default width when not hovered */
+  width: 45px; /* Default width when not hovered */
   height: 3px;
   background-color: black;
   transform-origin: left;
@@ -46,14 +47,12 @@ body {
 }
 
 .underline-animation:hover::after {
-  width: 100%;  /* Expand the width to full on hover */
+  width: 100%; /* Expand the width to full on hover */
 }
 
-.dropdown-class{
-  border:1px solid #FF6F61
+.dropdown-class {
+  border: 1px solid #ff6f61;
 }
-
-
 
 /* 3 column */
 
@@ -161,7 +160,6 @@ body {
   margin-top: 1.8rem;
 }
 
-
 /*====================== scrollbar ======================*/
 
 /* width */
@@ -176,14 +174,13 @@ body {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #FF6F61;
+  background: #ff6f61;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(220 38 38);
 }
-
 
 @media screen and (max-width: 1024px) {
   .embla__slide {
@@ -194,7 +191,6 @@ body {
     /* min-width: 0; */
     flex: 0 0 49%;
   }
-
 }
 @media screen and (max-width: 768px) {
   .embla__slide {
@@ -205,7 +201,6 @@ body {
     /* min-width: 0; */
     flex: 0 0 99%;
   }
-
 }
 @media screen and (max-width: 640px) {
   .embla__slide {
@@ -216,5 +211,4 @@ body {
     /* min-width: 0; */
     flex: 0 0 95%;
   }
-
 }
