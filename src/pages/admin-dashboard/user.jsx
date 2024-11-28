@@ -1,176 +1,16 @@
-// import React, { useState, useRef, useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { Logo } from "@/assets";
-// import { Font1 } from "@/config/typography";
-// import IconHeader1 from "@/assets/dashboard/header-icon/icon-1.png";
-// import IconHeader2 from "@/assets/dashboard/header-icon/icon-2.png";
-// import IconHeader3 from "@/assets/dashboard/header-icon/icon-3.png";
-// import IconHeader4 from "@/assets/dashboard/header-icon/icon-4.png";
-// import profileIcon from "@/assets/dashboard/header-icon/user-icon.png";
-// import upload from "@/assets/dashboard/header-icon/upload.png";
-// import edit from "@/assets/dashboard/header-icon/edit.png";
-// import { removeData } from "@/config/helper";
-// import InputField from "@/component/common/input";
-// import FileUpload from "@/component/common/upload";
-// import TextArea from "@/component/common/textarea";
-// import { Close } from "@/config/app-constant";
-// import { Put, Get } from "@/config/api-method";
-// import Table from "@/component/common/table";
-// import { HiOutlineDotsVertical } from "react-icons/hi";
-// import { MdPersonAdd } from "react-icons/md";
-
-// const AllRequestCol = [
-//   { heading: "Image", key: "image" },
-//   { heading: "Name", key: "firstName" },
-//   { heading: "Email", key: "email" },
-//   { heading: "Role", key: "role" },
-//   { heading: "Region", key: "region" },
-//   { heading: "Detail", key: "detail" },
-// ];
-
-// export default function Users() {
-//   const [allDatasource, setAllDatasource] = useState([]);
-//   const [isSubModalOpen, setSubModalOpen] = useState(false);
-//   const [filterList, setFilterList] = useState([]);
-
-//   const getData = () => {
-//     Get("/auth")
-//       .then((res) => {
-//         console.log(res?.data);
-//         if (res?.data) {
-//           const AllUserData = res?.data.map((item) => ({
-//             image: (
-//               <img
-//                 src={
-//                   item?.image ||
-//                   "https://ghaliajewelry.com/wp-content/uploads/2016/08/dummy-prod-1.jpg"
-//                 }
-//                 className="h-[35px] w-[35px] rounded-full"
-//               />
-//             ),
-//             firstName: item.firstName,
-//             email: item.email,
-//             role: item.role,
-//             region: item.region,
-//             detail: (
-//               <button onClick={() => handleSubModel(item._id)}>
-//                 <HiOutlineDotsVertical />
-//               </button>
-//             ),
-//           }));
-//           setAllDatasource(AllUserData);
-//         }
-//       })
-//       .catch((err) => {
-//         console.log("Error fetching data:", err);
-//       });
-//   };
-
-//   const getDataById = (id) => {
-//     // First, fetch the booking data
-//     // Get(`/booking/${id}`)
-//     //   .then((res) => {
-//     //     if (res?.data) {
-//     //       const booking = res?.data; // Save the booking data
-//     //       // Now, fetch the user data using the userId from the booking
-//     //       Get(`/auth/${booking.parentId}`)
-//     //         .then((userRes) => {
-//     //           const user = userRes?.data || {}; // Handle user data
-//     //           setSingleBooking({
-//     //             name: user.firstName,
-//     //             email: user.email,
-//     //             region: user.region,
-//     //             status: booking.status,
-//     //             message: booking.message,
-//     //             childrenCount: booking.childrenCount,
-//     //             childrenAges: booking.childrenAges,
-//     //           });
-//     //         })
-//     //         .catch((err) => {
-//     //           console.error("Error fetching user data:", err);
-//     //         });
-//     //     }
-//     //   })
-//     //   .catch((err) => {
-//     //     console.error("Error fetching booking data:", err);
-//     //   });
-//   };
-
-//   const handleSubModel = (id) => {
-//     getDataById(id);
-//     setSubModalOpen(true);
-//   };
-
-//   const handleSearchChange = (e) => {
-//     const query = e.target.value.toLowerCase();
-
-//     if (!query) {
-//       // If the input is empty, clear the filterList to show banner and filter
-//       setFilterList([]);
-//       return;
-//     }
-
-//     const filtered = allDatasource.filter((x) => {
-//       const firstNameMatch = x.firstName?.toLowerCase().includes(query);
-//       const budgetMatch = x.budget?.toLowerCase().includes(query);
-//       return firstNameMatch || budgetMatch;
-//     });
-
-//     setFilterList(filtered);
-//   };
-
-//   useEffect(() => {
-//     // This effect will run when the component mounts and whenever the location changes
-//     console.log("filterList updated:", filterList);
-//   }, [filterList]);
-
-//   useEffect(() => {
-//     getData();
-//   }, []);
-
-//   return (
-//     <section className="px-4">
-//       <div className="flex gap-4 justify-between py-2">
-//         <input
-//           type="text"
-//           placeholder="search"
-//           className={`w-[280px] h-[40px] bg-white border p-2 rounded-lg outline-none `}
-//           onChange={handleSearchChange}
-//         />
-
-//         <div className="flex items-center gap-2">
-//           <select
-//             name="serviceType"
-//             // value={model.serviceType || ""}
-//             // onChange={(e) => setModel("serviceType", e.target.value)} // Use the handler for select dropdown
-//             className="bg-transparent px-8 py-2 rounded-[5px] border-gray-200 border text-gray-600 text-sm block w-full focus:outline-none"
-//           >
-//             <option value="">Role</option>
-//             <option value="user">User</option>
-//             <option value="nanny">Nanny</option>
-//           </select>
-//           <div>
-//             <MdPersonAdd size={28} color="#d1d1d1" />
-//           </div>
-//         </div>
-//       </div>
-//       <div className="flex gap-4 pt-2 ">
-//         <Table
-//           tableClass="overflow-y-scroll  max-h-[420px] border w-full"
-//           tableHeaderClass="bg-fuchsia-700 w-full text-white sticky top-0 capitalize font-montserrat"
-//           datasource={allDatasource}
-//           cols={AllRequestCol}
-//         />
-//       </div>
-//     </section>
-//   );
-// }
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdPersonAdd } from "react-icons/md";
-import { Get } from "@/config/api-method";
+import { Get, Put } from "@/config/api-method";
 import Table from "@/component/common/table";
+import { Close } from "@/config/app-constant";
+import edit from "@/assets/dashboard/header-icon/edit.png";
+import { useSelector } from "react-redux";
+import upload from "@/assets/dashboard/header-icon/upload.png";
+import InputField from "@/component/common/input";
+import FileUpload from "@/component/common/upload";
+import TextArea from "@/component/common/textarea";
+import Toast from "@/component/common/toast";
 
 const AllRequestCol = [
   { heading: "Image", key: "image" },
@@ -184,8 +24,38 @@ const AllRequestCol = [
 export default function Users() {
   const [allDatasource, setAllDatasource] = useState([]);
   const [filterList, setFilterList] = useState([]);
+  const [user, setUser] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
+  const requestModalRef = useRef(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const ModalRef = useRef(null);
+  const [serviceTypedropdown, setServiceTypeDropdown] = useState(false);
+  const serviceTypedropdownRef = useRef(null);
+  const [shareNannydropdown, setshareNannyDropdown] = useState(false);
+  const shareNannydropdownRef = useRef(null);
+  const [regiondropdown, setRegionDropdown] = useState(false);
+  const regiondropdownRef = useRef(null);
+  const userData = useSelector((state) => state.user);
+  const [selected, setSelected] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  // const [isModalOpen, setModalOpen] = useState(false);
+  const modalRef = useRef(null);
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: "",
+    type: "",
+  });
+
+  const [isEdit, setIsEdit] = useState(false);
+
+  const fillModel = (key, val) => {
+    setModel((prevModel) => ({
+      ...prevModel,
+      [key]: val,
+    }));
+  };
 
   const getData = () => {
     Get("/auth")
@@ -219,8 +89,43 @@ export default function Users() {
       });
   };
 
+  const getDataById = (id) => {
+    Get(`/auth/${id}`)
+      .then((res) => {
+        console.log("Fetched nanny data:", res?.data);
+        setUser(res?.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching user data:", err);
+      });
+  };
+
+  const handleEdit = () => {
+    setIsEdit(true);
+  };
+
+  const save = () => {
+    Put(
+      "auth",
+      {
+        user,
+        ...model,
+      },
+      user?._id
+    )
+      .then((res) => {
+        showToast("Profile Update Successfully", "success");
+        setModalOpen(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const handleSubModel = (id) => {
     console.log("Submodel clicked for ID:", id);
+    getDataById(id);
+    setModalOpen(true);
   };
 
   const handleSearchChange = (e) => {
@@ -252,6 +157,146 @@ export default function Users() {
     getData();
   }, []);
 
+  const [imageUri, setImageUri] = useState();
+
+  const [model, setModel] = useState({
+    // DateofBirth: JSON.parse(JSON.stringify(new Date())),
+    image: imageUri,
+  });
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUri(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+  const toggleServiceTypeDropdown = () => {
+    setServiceTypeDropdown(!serviceTypedropdown);
+  };
+
+  const toggleshareNannyDropdown = () => {
+    setshareNannyDropdown(!shareNannydropdown);
+  };
+
+  const toggleRegionDropdown = () => {
+    setRegionDropdown(!regiondropdown);
+  };
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => setModalOpen(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setModalOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        requestModalRef.current &&
+        !requestModalRef.current.contains(event.target)
+      ) {
+        setModalOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        serviceTypedropdownRef.current &&
+        !serviceTypedropdownRef.current.contains(event.target)
+      ) {
+        setServiceTypeDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        shareNannydropdownRef.current &&
+        !shareNannydropdownRef.current.contains(event.target)
+      ) {
+        setshareNannyDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        regiondropdownRef.current &&
+        !regiondropdownRef.current.contains(event.target)
+      ) {
+        setRegionDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const showToast = (message, type) => {
+    setToast({ isVisible: true, message, type });
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setToast({ ...toast, isVisible: false });
+    }, 3000);
+  };
+
   return (
     <section className="px-4">
       <div className="flex gap-4 justify-between py-2">
@@ -275,19 +320,220 @@ export default function Users() {
             <option value="nanny">Nanny</option>
           </select>
           <div>
-            <MdPersonAdd size={28} color="#d1d1d1" />
+            <MdPersonAdd size={28} color="#dbcce0" />
           </div>
         </div>
       </div>
 
       <div className="flex gap-4 pt-2">
         <Table
-          tableClass="overflow-y-scroll max-h-[420px] border w-full"
+          tableClass="overflow-y-scroll max-h-[460px] border w-full"
           tableHeaderClass="bg-fuchsia-700 w-full text-white sticky top-0 capitalize font-montserrat"
           datasource={filterList.length > 0 ? filterList : allDatasource}
           cols={AllRequestCol}
         />
       </div>
+
+      {isModalOpen && (
+        <div
+          id="static-modal"
+          className="fixed top-0 right-0 left-0 flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
+        >
+          <div
+            className="p-4 w-full max-w-[45%] max-h-full rounded-md"
+            ref={ModalRef}
+          >
+            <div className="bg-white px-8 rounded-md shadow-md border py-10 z-0 flex flex-col justify-center relative">
+              <div className="absolute top-6 right-6">
+                {isEdit ? (
+                  <button>
+                    <button
+                      className="px-8 py-1 text-[16px] bg-red-500 text-white font-medium rounded-md  hover:bg-red-600"
+                      onClick={save}
+                    >
+                      Save
+                    </button>
+                  </button>
+                ) : (
+                  <button
+                    className="border border-red-500 rounded-md px-8 py-1 text-[16px] flex  font-semibold items-center"
+                    onClick={handleEdit}
+                  >
+                    Edit <img src={edit} className="ps-4 h-[18px]" />
+                  </button>
+                )}
+              </div>
+
+              <div className="gap-4 grid grid-cols-12 ">
+                <div className="col-span-4 flex justify-center items-center">
+                  <FileUpload
+                    disabled={isEdit ? false : true}
+                    onChange={handleImageChange}
+                    className="bg-transparent mt-2 mb-4 rounded-full border-gray-200 border h-[90px] w-[90px]
+                     text-[#666666] text-sm flex justify-center items-start
+                      focus:outline-none "
+                  >
+                    <img
+                      src={upload || user?.image}
+                      className="w-full h-full"
+                    />
+                  </FileUpload>
+                </div>
+                <div className="col-span-8 flex flex-col justify-center">
+                  <span
+                    //   className="flex justify-center items-center bg-green-500
+                    // rounded-sm w-[95px] h-[30px] opacity-50 text-lime-950 font-semibold border-lime-950 border-2 my-2 text-md"
+                    className="text-md font-semibold text-teal-700 italic font-lato"
+                  >
+                    Active--
+                  </span>
+                  <h4 className="text-sm font-medium font-lato">
+                    <span>{user?.firstName}</span>
+                    <span>{user?.lastName}</span>
+                  </h4>
+                  <h4 className="text-sm font-medium font-lato">
+                    {user?.email}
+                  </h4>
+                </div>
+              </div>
+              <div className="gap-4 grid grid-cols-3">
+                <div>
+                  <span className="text-sm font-medium font-lato">
+                    First Name
+                  </span>
+                  <InputField
+                    disabled={isEdit ? false : true}
+                    type="text"
+                    value={model.firstName}
+                    onChange={(e) => fillModel("firstName", e.target.value)}
+                    placeholder={user?.firstName}
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div>
+                <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Last Name
+                  </span>
+                  <InputField
+                    disabled={isEdit ? false : true}
+                    type="text"
+                    value={model.lastName}
+                    onChange={(e) => fillModel("lastName", e.target.value)}
+                    placeholder={user?.lastName}
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div>
+
+                {/* Service Type */}
+                <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Service Type
+                  </span>
+                  <select
+                    name="serviceType"
+                    disabled={isEdit ? false : true}
+                    value={model.serviceType || ""}
+                    onChange={(e) => fillModel("serviceType", e.target.value)}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                  >
+                    <option value="">Select Service Type</option>
+                    <option value="part-time">Part Time</option>
+                    <option value="full-time">Full Time</option>
+                    <option value="occasional">Occasional</option>
+                  </select>
+                </div>
+
+                {/* Region */}
+                <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Region
+                  </span>
+                  <select
+                    name="region"
+                    disabled={isEdit ? false : true}
+                    value={model.region || ""}
+                    onChange={(e) => fillModel("region", e.target.value)}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                  >
+                    <option value="">Select Region</option>
+                    <option value="usa">USA</option>
+                    <option value="canada">Canada</option>
+                  </select>
+                </div>
+
+                <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Zip Code
+                  </span>
+                  <InputField
+                    disabled={isEdit ? false : true}
+                    type="text"
+                    value={model.zipCode}
+                    onChange={(e) => fillModel("zipCode", e.target.value)}
+                    placeholder={user?.zipCode}
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div>
+              </div>
+              {user?.role === "nanny" && (
+                <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Describtion
+                  </span>
+                  <TextArea
+                    disabled={isEdit ? false : true}
+                    value={model.parentJobDescription}
+                    onChange={(e) =>
+                      fillModel("parentJobDescription", e.target.value)
+                    }
+                    placeholder={user?.parentJobDescription || "message"}
+                    rows={5}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div>
+              )}
+              {user?.role === "user" && (
+                <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Describtion
+                  </span>
+                  <TextArea
+                    disabled={isEdit ? false : true}
+                    value={model.aboutYourself}
+                    onChange={(e) => fillModel("aboutYourself", e.target.value)}
+                    placeholder={user?.aboutYourself || "message"}
+                    rows={5}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div>
+              )}
+
+              <button
+                onClick={() => setModalOpen(false)}
+                className="absolute top-[-20px] right-[-20px]"
+              >
+                <Close />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast({ ...toast, isVisible: false })}
+      />
     </section>
   );
 }

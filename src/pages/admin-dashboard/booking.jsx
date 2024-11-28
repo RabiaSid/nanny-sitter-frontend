@@ -157,7 +157,7 @@
 
 //   // const handleSubModel = (id) => {
 //   //   getDataById(id);
-//   //   setSubModalOpen(true);
+//   //   setModalOpen(true);
 //   // };
 
 //   const handleSubModel = (id) => {
@@ -233,11 +233,16 @@
 //   );
 // }
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdPersonAdd } from "react-icons/md";
-import { Get } from "@/config/api-method";
+import { Get, Put } from "@/config/api-method";
 import Table from "@/component/common/table";
+import { Close } from "@/config/app-constant";
+import edit from "@/assets/dashboard/header-icon/edit.png";
+import Toast from "@/component/common/toast";
+import InputField from "@/component/common/input";
+import TextArea from "@/component/common/textarea";
 
 const AllRequestCol = [
   { heading: "Sno", key: "Sno" },
@@ -253,6 +258,24 @@ export default function Bookings() {
   const [filterList, setFilterList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(""); // Status filter
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [model, setModel] = useState({});
+  const [isEdit, setIsEdit] = useState(false);
+  // const [user, setUser] = useState({});
+  const [singleBooking, setSingleBooking] = useState({});
+  const ModalRef = useRef(null);
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: "",
+    type: "",
+  });
+
+  const fillModel = (key, val) => {
+    setModel((prevModel) => ({
+      ...prevModel,
+      [key]: val,
+    }));
+  };
 
   // Fetch all booking data
   const getAllData = () => {
@@ -305,8 +328,47 @@ export default function Bookings() {
       .catch((err) => console.error("Error fetching data:", err));
   };
 
+  const getDataById = (id) => {
+    // First, fetch the booking data
+    Get(`/booking/${id}`)
+      .then((res) => {
+        if (res?.data) {
+          const booking = res?.data; // Save the booking data
+
+          // Now, fetch the user data using the userId from the booking
+          Get(`/auth/${booking.parentId}`)
+            .then((userRes) => {
+              const user = userRes?.data || {}; // Handle user data
+
+              setSingleBooking({
+                name: user.firstName,
+                email: user.email,
+                region: user.region,
+                status: booking.status,
+                message: booking.message,
+                childrenCount: booking.childrenCount,
+                childrenAges: booking.childrenAges,
+              });
+            })
+            .catch((err) => {
+              console.error("Error fetching user data:", err);
+            });
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching booking data:", err);
+      });
+  };
+
+  const handleEdit = () => {
+    setIsEdit(true);
+  };
+
   const handleSubModel = (id) => {
     console.log("Submodel clicked for ID:", id);
+    getDataById(id);
+    approvedBooking(id);
+    setModalOpen(true);
   };
 
   const handleSearchChange = (e) => {
@@ -316,6 +378,43 @@ export default function Bookings() {
   const handleStatusChange = (e) => {
     const status = e.target.value;
     setSelectedStatus(status); // Update selected status
+  };
+
+  // const save = () => {
+  //   Put(
+  //     "booking",
+  //     {
+  //       singleBooking,
+  //       ...model,
+  //     },
+  //     singleBooking?._id
+  //   )
+  //     .then((res) => {
+  //       showToast("Profile Update Successfully", "success");
+  //       setModalOpen(false);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
+
+  const approvedBooking = (id) => {
+    console.log("singleBooking?._id", singleBooking?._id);
+    console.log("id", id);
+    Put(
+      "booking/",
+      {
+        status: "approved",
+      },
+      id
+    )
+      .then((res) => {
+        showToast("Booking Update Successfully", "success");
+        isModalOpen(false);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   // Apply search and status filter
@@ -341,6 +440,15 @@ export default function Bookings() {
   useEffect(() => {
     getAllData();
   }, []);
+
+  const showToast = (message, type) => {
+    setToast({ isVisible: true, message, type });
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setToast({ ...toast, isVisible: false });
+    }, 3000);
+  };
 
   return (
     <section className="px-4">
@@ -379,6 +487,200 @@ export default function Bookings() {
           cols={AllRequestCol}
         />
       </div>
+      {isModalOpen && singleBooking && (
+        <div
+          id="static-modal"
+          className="fixed top-0 right-0 left-0 flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
+        >
+          <div
+            className="p-4 w-full max-w-[55%] max-h-full rounded-md"
+            ref={ModalRef}
+          >
+            <div className="bg-white px-8 rounded-md shadow-md border py-10 z-0 flex flex-col justify-center relative">
+              <div className="absolute top-6 right-6"></div>
+              <div className="mt-8">
+                <h2 className="absolute font-bold text-lg top-3 left-[30%] right-[30%] text-center">
+                  Booking Detail
+                </h2>
+                <div className="mb-2">
+                  <p className="text-green-800 italic absolute top-3 left-auto right-3">
+                    {singleBooking?.status || "Status not available"}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 my-2">
+                  <div className="flex flex-col rounded-md">
+                    <h3 className="text-md font-semibold">Name:</h3>
+                    <p className="text-sm text-gray-800">
+                      {singleBooking?.name || "N/A"}
+                    </p>
+                  </div>
+                  <div className="flex flex-col rounded-md">
+                    <h3 className="text-md font-semibold">Email:</h3>
+                    <p className="text-sm text-gray-800">
+                      {singleBooking?.email || "N/A"}
+                    </p>
+                  </div>
+                  <div className="flex flex-col rounded-md">
+                    <h3 className="text-md font-semibold">Region:</h3>
+                    <p className="text-sm text-gray-800">
+                      {singleBooking?.region || "N/A"}
+                    </p>
+                  </div>
+                </div>
+                <div className="mb-1 flex items-center">
+                  <h3 className="text-md font-semibold">Parent Message:</h3>
+                  <p className="text-sm text-gray-800 italic ps-2">
+                    {singleBooking?.message || "No message available."}
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  <h3 className="text-md font-semibold">Total Child:</h3>
+                  <p className="text-sm text-gray-800 ps-2">
+                    {singleBooking?.childrenCount || "No message available."}
+                  </p>
+                </div>
+                <div className=" flex flex-wrap gap-2 mb-2">
+                  {singleBooking?.childrenAges?.length > 0 ? (
+                    singleBooking.childrenAges.map((age, index) => (
+                      <div key={index} className="flex items-center">
+                        <h3 className="text-sm font-semibold">
+                          Child {index + 1} :
+                        </h3>
+                        <p className="text-sm text-gray-600 ps-2">{age}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <li>No message available.</li>
+                  )}
+                </div>
+                <div className="">
+                  <h3 className="text-sm font-semibold">
+                    Please update this booking status?
+                  </h3>
+                  <div className="flex my-2 gap-4">
+                    <button
+                      className="rounded-md px-6 py-1 bg-blue-500/85 text-white"
+                      onClick={approvedBooking}
+                    >
+                      Accept
+                    </button>
+                    <button className="rounded-md px-6 py-1 bg-red-600/85  text-white">
+                      Reject
+                    </button>
+                  </div>
+                  <div className="my-4">
+                    <TextArea
+                      type="text"
+                      label="Reason"
+                      rows={3}
+                      className=""
+                    />
+                  </div>
+                  <button className="rounded-md border px-4 py-1 bg-gray-950/85  text-white w-[250px]">
+                    Submit
+                  </button>
+                </div>
+                {/* <div>
+                  <span className="text-sm font-medium font-lato">
+                    First Name
+                  </span>
+                  <InputField
+                    disabled={isEdit ? false : true}
+                    type="text"
+                    value={model.firstName}
+                    onChange={(e) => fillModel("firstName", e.target.value)}
+                    placeholder={singleBooking?.firstName}
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div>
+                <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Last Name
+                  </span>
+                  <InputField
+                    disabled={isEdit ? false : true}
+                    type="text"
+                    value={model.lastName}
+                    onChange={(e) => fillModel("lastName", e.target.value)}
+                    placeholder={singleBooking?.lastName}
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div> */}
+
+                {/* Service Type */}
+                {/* <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Service Type
+                  </span>
+                  <select
+                    name="status"
+                    disabled={isEdit ? false : true}
+                    value={model.serviceType || ""}
+                    onChange={(e) => fillModel("serviceType", e.target.value)}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                  >
+                    <option value="">Status</option>
+                    <option value="pending">pending</option>
+                    <option value="accept">accept</option>
+                    <option value="reject">reject</option>
+                  </select>
+                </div> */}
+
+                {/* Region */}
+                {/* <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Region
+                  </span>
+                  <select
+                    name="region"
+                    disabled={isEdit ? false : true}
+                    value={model.region || ""}
+                    onChange={(e) => fillModel("region", e.target.value)}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                  >
+                    <option value="">Select Region</option>
+                    <option value="usa">USA</option>
+                    <option value="canada">Canada</option>
+                  </select>
+                </div> */}
+
+                {/* <div>
+                  <span className="text-sm font-medium font-lato pb-2">
+                    Zip Code
+                  </span>
+                  <InputField
+                    disabled={isEdit ? false : true}
+                    type="text"
+                    value={model.zipCode}
+                    onChange={(e) => fillModel("zipCode", e.target.value)}
+                    placeholder={singleBooking?.zipCode}
+                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                  />
+                </div> */}
+              </div>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="absolute top-[-20px] right-[-20px]"
+              >
+                <Close />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast({ ...toast, isVisible: false })}
+      />
     </section>
   );
 }

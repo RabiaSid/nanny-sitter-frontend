@@ -85,6 +85,13 @@ export default function DashboardHeader({ children, onClickSearch }) {
     image: imageUri,
   });
 
+  const fillModel = (key, val) => {
+    setModel((prevModel) => ({
+      ...prevModel,
+      [key]: val,
+    }));
+  };
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -580,7 +587,6 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     Edit <img src={edit} className="ps-4" />
                   </button>
                 )}
-                {/*  */}
               </div>
 
               <div className="gap-4 grid grid-cols-12 ">
@@ -624,9 +630,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     disabled={isEdit ? false : true}
                     type="text"
                     value={model.firstName}
-                    onChange={(e) =>
-                      setModel({ ...model, firstName: e.target.value })
-                    }
+                    onChange={(e) => fillModel("firstName", e.target.value)}
                     placeholder={userData?.firstName}
                     inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
                 border-gray-200 border text-gray-900 text-sm  block
@@ -641,9 +645,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     disabled={isEdit ? false : true}
                     type="text"
                     value={model.lastName}
-                    onChange={(e) =>
-                      setModel({ ...model, lastName: e.target.value })
-                    }
+                    onChange={(e) => fillModel("lastName", e.target.value)}
                     placeholder={userData?.lastName}
                     inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
                 border-gray-200 border text-gray-900 text-sm  block
@@ -660,7 +662,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     name="serviceType"
                     disabled={isEdit ? false : true}
                     value={model.serviceType || ""}
-                    onChange={(e) => setModel("serviceType", e.target.value)} // Use the handler for select dropdown
+                    onChange={(e) => fillModel("serviceType", e.target.value)}
                     className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
                   >
                     <option value="">Select Service Type</option>
@@ -679,7 +681,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     name="region"
                     disabled={isEdit ? false : true}
                     value={model.region || ""}
-                    onChange={(e) => setModel("region", e.target.value)} // Use the handler for select dropdown
+                    onChange={(e) => fillModel("region", e.target.value)}
                     className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
                   >
                     <option value="">Select Region</option>
@@ -696,9 +698,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     disabled={isEdit ? false : true}
                     type="text"
                     value={model.zipCode}
-                    onChange={(e) =>
-                      setModel({ ...model, zipCode: e.target.value })
-                    }
+                    onChange={(e) => fillModel("zipCode", e.target.value)}
                     placeholder={userData?.zipCode}
                     inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
                 border-gray-200 border text-gray-900 text-sm  block
@@ -716,10 +716,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     // type="text"
                     value={model.parentJobDescription}
                     onChange={(e) =>
-                      setModel({
-                        ...model,
-                        parentJobDescription: e.target.value,
-                      })
+                      fillModel("parentJobDescription", e.target.value)
                     }
                     placeholder={userData?.parentJobDescription || "message"}
                     rows={5}
@@ -738,9 +735,7 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     disabled={isEdit ? false : true}
                     // type="text"
                     value={model.aboutYourself}
-                    onChange={(e) =>
-                      setModel({ ...model, aboutYourself: e.target.value })
-                    }
+                    onChange={(e) => fillModel("aboutYourself", e.target.value)}
                     placeholder={userData?.aboutYourself || "message"}
                     rows={5}
                     className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
