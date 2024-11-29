@@ -260,9 +260,11 @@ export default function Bookings() {
   const [selectedStatus, setSelectedStatus] = useState(""); // Status filter
   const [isModalOpen, setModalOpen] = useState(false);
   const [model, setModel] = useState({});
-  const [isEdit, setIsEdit] = useState(false);
+  const [isReject, setIsReject] = useState(false);
+  // const [user, setUser] = useState({});
   // const [user, setUser] = useState({});
   const [singleBooking, setSingleBooking] = useState({});
+  const [singleBookingId, setSingleBookingId] = useState();
   const ModalRef = useRef(null);
   const [toast, setToast] = useState({
     isVisible: false,
@@ -334,13 +336,13 @@ export default function Bookings() {
       .then((res) => {
         if (res?.data) {
           const booking = res?.data; // Save the booking data
-
           // Now, fetch the user data using the userId from the booking
           Get(`/auth/${booking.parentId}`)
             .then((userRes) => {
               const user = userRes?.data || {}; // Handle user data
 
               setSingleBooking({
+                id: user._id,
                 name: user.firstName,
                 email: user.email,
                 region: user.region,
@@ -360,16 +362,13 @@ export default function Bookings() {
       });
   };
 
-  const handleEdit = () => {
-    setIsEdit(true);
-  };
-
   const handleSubModel = (id) => {
-    console.log("Submodel clicked for ID:", id);
+    setSingleBookingId(id);
     getDataById(id);
-    approvedBooking(id);
     setModalOpen(true);
   };
+
+  console.log(singleBooking);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
@@ -380,33 +379,31 @@ export default function Bookings() {
     setSelectedStatus(status); // Update selected status
   };
 
-  // const save = () => {
-  //   Put(
-  //     "booking",
-  //     {
-  //       singleBooking,
-  //       ...model,
-  //     },
-  //     singleBooking?._id
-  //   )
-  //     .then((res) => {
-  //       showToast("Profile Update Successfully", "success");
-  //       setModalOpen(false);
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // };
-
-  const approvedBooking = (id) => {
-    console.log("singleBooking?._id", singleBooking?._id);
-    console.log("id", id);
+  const approvedBooking = () => {
     Put(
-      "booking/",
+      "booking",
       {
         status: "approved",
       },
-      id
+      singleBookingId
+    )
+      .then((res) => {
+        showToast("Profile Update Successfully", "success");
+        setModalOpen(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const RejectBooking = () => {
+    Put(
+      "booking",
+      {
+        ...model,
+        status: "reject",
+      },
+      singleBookingId
     )
       .then((res) => {
         showToast("Booking Update Successfully", "success");
@@ -503,7 +500,13 @@ export default function Bookings() {
                   Booking Detail
                 </h2>
                 <div className="mb-2">
-                  <p className="text-green-800 italic absolute top-3 left-auto right-3">
+                  <p
+                    className={`italic absolute top-3 text-sm left-auto right-3 capitalize
+                  ${singleBooking?.status === "pending" && "text-green-800"}
+                  ${singleBooking?.status === "approved" && "text-blue-800"}
+                  ${singleBooking?.status === "reject" && "text-red-800"}
+                  `}
+                  >
                     {singleBooking?.status || "Status not available"}
                   </p>
                 </div>
@@ -564,105 +567,38 @@ export default function Bookings() {
                     >
                       Accept
                     </button>
-                    <button className="rounded-md px-6 py-1 bg-red-600/85  text-white">
-                      Reject
+                    <button
+                      className={`rounded-md px-6 py-1  text-white ${
+                        isReject ? "bg-gray-600/85" : "bg-red-600/85"
+                      }`}
+                      onClick={() => setIsReject(!isReject)}
+                    >
+                      {isReject ? "cancel" : "Reject"}
                     </button>
                   </div>
-                  <div className="my-4">
-                    <TextArea
-                      type="text"
-                      label="Reason"
-                      rows={3}
-                      className=""
-                    />
-                  </div>
-                  <button className="rounded-md border px-4 py-1 bg-gray-950/85  text-white w-[250px]">
-                    Submit
-                  </button>
+                  {isReject && (
+                    <>
+                      <div className="my-4">
+                        <TextArea
+                          type="text"
+                          label="Reason"
+                          rows={3}
+                          className=""
+                          value={model.rejectReason}
+                          onChange={(e) =>
+                            fillModel("rejectReason", e.target.value)
+                          }
+                        />
+                      </div>
+                      <button
+                        className="rounded-md border px-4 py-1 bg-gray-950/85  text-white w-[250px]"
+                        onClick={RejectBooking}
+                      >
+                        Submit
+                      </button>
+                    </>
+                  )}
                 </div>
-                {/* <div>
-                  <span className="text-sm font-medium font-lato">
-                    First Name
-                  </span>
-                  <InputField
-                    disabled={isEdit ? false : true}
-                    type="text"
-                    value={model.firstName}
-                    onChange={(e) => fillModel("firstName", e.target.value)}
-                    placeholder={singleBooking?.firstName}
-                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
-                border-gray-200 border text-gray-900 text-sm  block
-                w-full focus:outline-none "
-                  />
-                </div>
-                <div>
-                  <span className="text-sm font-medium font-lato pb-2">
-                    Last Name
-                  </span>
-                  <InputField
-                    disabled={isEdit ? false : true}
-                    type="text"
-                    value={model.lastName}
-                    onChange={(e) => fillModel("lastName", e.target.value)}
-                    placeholder={singleBooking?.lastName}
-                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
-                border-gray-200 border text-gray-900 text-sm  block
-                w-full focus:outline-none "
-                  />
-                </div> */}
-
-                {/* Service Type */}
-                {/* <div>
-                  <span className="text-sm font-medium font-lato pb-2">
-                    Service Type
-                  </span>
-                  <select
-                    name="status"
-                    disabled={isEdit ? false : true}
-                    value={model.serviceType || ""}
-                    onChange={(e) => fillModel("serviceType", e.target.value)}
-                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
-                  >
-                    <option value="">Status</option>
-                    <option value="pending">pending</option>
-                    <option value="accept">accept</option>
-                    <option value="reject">reject</option>
-                  </select>
-                </div> */}
-
-                {/* Region */}
-                {/* <div>
-                  <span className="text-sm font-medium font-lato pb-2">
-                    Region
-                  </span>
-                  <select
-                    name="region"
-                    disabled={isEdit ? false : true}
-                    value={model.region || ""}
-                    onChange={(e) => fillModel("region", e.target.value)}
-                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
-                  >
-                    <option value="">Select Region</option>
-                    <option value="usa">USA</option>
-                    <option value="canada">Canada</option>
-                  </select>
-                </div> */}
-
-                {/* <div>
-                  <span className="text-sm font-medium font-lato pb-2">
-                    Zip Code
-                  </span>
-                  <InputField
-                    disabled={isEdit ? false : true}
-                    type="text"
-                    value={model.zipCode}
-                    onChange={(e) => fillModel("zipCode", e.target.value)}
-                    placeholder={singleBooking?.zipCode}
-                    inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
-                border-gray-200 border text-gray-900 text-sm  block
-                w-full focus:outline-none "
-                  />
-                </div> */}
               </div>
               <button
                 onClick={() => setModalOpen(false)}

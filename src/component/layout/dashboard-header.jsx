@@ -58,8 +58,9 @@ export default function DashboardHeader({ children, onClickSearch }) {
   const regiondropdownRef = useRef(null);
   const userData = useSelector((state) => state.user);
   const [selected, setSelected] = useState(true);
+  const [isReject, setIsReject] = useState(false);
   const [singleBooking, setSingleBooking] = useState({});
-  // console.log("User logged in: 22222", userData);
+  const [singleBookingId, setSingleBookingId] = useState();
   const dispatch = useDispatch();
   const [toast, setToast] = useState({
     isVisible: false,
@@ -437,16 +438,34 @@ export default function DashboardHeader({ children, onClickSearch }) {
   const handleSubModel = (id) => {
     getDataById(id);
     setSubModalOpen(true);
+    setSingleBookingId(id);
   };
 
   const approvedBooking = () => {
     Put(
-      "booking/",
+      "booking",
       {
-        ...model,
         status: "approved",
       },
-      singleBooking?.parentId
+      singleBookingId
+    )
+      .then((res) => {
+        showToast("Booking Update Successfully", "success");
+        isSubModalOpen(false);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  const RejectBooking = () => {
+    Put(
+      "booking",
+      {
+        ...model,
+        status: "reject",
+      },
+      singleBookingId
     )
       .then((res) => {
         showToast("Booking Update Successfully", "success");
@@ -837,7 +856,13 @@ export default function DashboardHeader({ children, onClickSearch }) {
                 Booking Detail
               </h2>
               <div className="mb-2">
-                <p className="text-green-800 italic absolute top-3 left-auto right-3">
+                <p
+                  className={`italic absolute top-3 left-auto right-3 text-sm capitalize
+                  ${singleBooking?.status === "pending" && "text-green-800"}
+                  ${singleBooking?.status === "approved" && "text-blue-800"}
+                  ${singleBooking?.status === "reject" && "text-red-800"}
+                  `}
+                >
                   {singleBooking?.status || "Status not available"}
                 </p>
               </div>
@@ -893,16 +918,6 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     ) : (
                       <li>No message available.</li>
                     )}
-                    {/* <h3 className="text-md font-semibold">Age Child:</h3>
-                    <ul className="text-sm text-gray-800 italic">
-                      {singleBooking?.childrenAges?.length > 0 ? (
-                        singleBooking.childrenAges.map((age, index) => (
-                          <li key={index}>{age}</li> // List each child's age in <li>
-                        ))
-                      ) : (
-                        <li>No message available.</li>
-                      )}
-                    </ul> */}
                   </div>
                 </>
               )}
@@ -919,21 +934,37 @@ export default function DashboardHeader({ children, onClickSearch }) {
                     >
                       Accept
                     </button>
-                    <button className="rounded-full px-4 py-1 bg-red-600/85  text-white">
-                      Reject
+                    <button
+                      className={`rounded-full px-4 py-1  text-white ${
+                        isReject ? "bg-gray-600/85" : "bg-red-600/85"
+                      }`}
+                      onClick={() => setIsReject(!isReject)}
+                    >
+                      {isReject ? "cancel" : "Reject"}
                     </button>
                   </div>
-                  <div className="my-4">
-                    <TextArea
-                      type="text"
-                      label="Reason"
-                      rows={3}
-                      className=""
-                    />
-                  </div>
-                  <button className="rounded-full border px-4 py-1 bg-gray-950/85  text-white">
-                    Submit
-                  </button>
+                  {isReject && (
+                    <>
+                      <div className="my-4">
+                        <TextArea
+                          type="text"
+                          label="Reason"
+                          rows={3}
+                          className=""
+                          value={model.rejectReason}
+                          onChange={(e) =>
+                            fillModel("rejectReason", e.target.value)
+                          }
+                        />
+                      </div>
+                      <button
+                        className="rounded-full border px-4 py-1 bg-gray-950/85  text-white"
+                        onClick={RejectBooking}
+                      >
+                        Submit
+                      </button>
+                    </>
+                  )}
                 </>
               )}
               <button
