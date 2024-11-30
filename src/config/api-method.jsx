@@ -65,15 +65,23 @@ let Put = async (apiName, body, id) => {
   }
   return await api.put(`${apiName}/${id}`, body);
 };
-let Delete = async (apiName, id) => {
+// let Delete = async (apiName, id) => {
+//   const token = await AsyncStorage.getItem("bussAppToken");
+//   if (token !== null) {
+//     // value previously stored
+//     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+//   }
+//   return await api.delete(`${apiName}/${id}`);
+// };
+
+let Delete = async (apiName) => {
+  // Remove id from parameter list
   const token = await AsyncStorage.getItem("bussAppToken");
   if (token !== null) {
-    // value previously stored
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
-  return await api.delete(`${apiName}/${id}`);
+  return await api.delete(apiName); // No extra id appended
 };
-
 // const saveToken = async (token) => {
 //   try {
 //     await AsyncStorage.setItem("bussAppToken", token);

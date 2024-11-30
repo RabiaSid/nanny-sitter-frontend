@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdPersonAdd } from "react-icons/md";
-import { Get, Put } from "@/config/api-method";
+import { Get, Put, Delete, Post } from "@/config/api-method";
 import Table from "@/component/common/table";
 import { Close } from "@/config/app-constant";
 import edit from "@/assets/dashboard/header-icon/edit.png";
@@ -11,7 +11,10 @@ import InputField from "@/component/common/input";
 import FileUpload from "@/component/common/upload";
 import TextArea from "@/component/common/textarea";
 import Toast from "@/component/common/toast";
-import { Post } from "@/config/api-method";
+import OTPInput from "@/component/common/otpField";
+import Button from "@/component/dashboard/button";
+import { Font1, H6, Font2 } from "@/config/typography";
+import { MdOutlineDeleteSweep } from "react-icons/md";
 
 const AllRequestCol = [
   { heading: "Image", key: "image" },
@@ -21,6 +24,7 @@ const AllRequestCol = [
   { heading: "Region", key: "region" },
   { heading: "Status", key: "isActive" },
   { heading: "Detail", key: "detail" },
+  { heading: "Remove", key: "remove" },
 ];
 
 export default function Users() {
@@ -46,6 +50,7 @@ export default function Users() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [selected, setSelected] = useState(true);
+  const [otpData, setOtpData] = useState({});
   const [toast, setToast] = useState({
     isVisible: false,
     message: "",
@@ -53,6 +58,9 @@ export default function Users() {
   });
   const [loading, setLoading] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
+  const [timer, setTimer] = useState(600);
+  const [otpModel, setOtpModel] = useState(false);
+  const otpRef = useRef(null);
 
   const fillModel = (key, val) => {
     setModel((prevModel) => ({
@@ -78,7 +86,7 @@ export default function Users() {
             firstName: item.firstName,
             email: item.email,
             role: item.role,
-            region: item.region || "N/A",
+            region: item?.region || "N/A",
             isActive: (
               <button
                 className={`rounded-md px-6 py-1  text-white w-[110px] ${
@@ -92,6 +100,11 @@ export default function Users() {
             detail: (
               <button onClick={() => handleSubModel(item._id)}>
                 <HiOutlineDotsVertical />
+              </button>
+            ),
+            remove: (
+              <button onClick={() => DeleteUser(item?._id)}>
+                <MdOutlineDeleteSweep size={24} className="text-red-700/55" />
               </button>
             ),
           }));
@@ -112,6 +125,21 @@ export default function Users() {
       })
       .catch((err) => {
         console.error("Error fetching user data:", err);
+      });
+  };
+
+  const DeleteUser = (id) => {
+    if (!id) {
+      console.error("Invalid ID provided for deletion");
+      return;
+    }
+    console.log("Deleting user with ID:", id);
+    Delete(`/auth/${id}`)
+      .then((res) => {
+        showToast("User Removed Successfully", "success");
+      })
+      .catch((err) => {
+        console.error("Error while deleting user:", err);
       });
   };
 
@@ -333,6 +361,19 @@ export default function Users() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (otpRef.current && !otpRef.current.contains(event.target)) {
+        setOtpModel(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
       if (
         shareNannydropdownRef.current &&
         !shareNannydropdownRef.current.contains(event.target)
@@ -363,6 +404,20 @@ export default function Users() {
     };
   }, []);
 
+  const createUserOtp = () => {
+    Post("auth/send-otp", model)
+      .then((res) => {
+        console.log("Full response:", res); // Log the entire response
+        setOtpData({ ...res?.data });
+        console.log("otp data:", otpData);
+        setOtpModel(true);
+      })
+      .catch((err) => {
+        console.error(err.response ? err.response.data : err.message); // More detailed error logging
+        showToast("Signup failed. Please try again.", "error");
+      });
+  };
+
   const createUser = () => {
     console.log(model);
     model.isActive = true;
@@ -376,12 +431,39 @@ export default function Users() {
       .then((res) => {
         console.log("Response received:", res);
         console.log("Response data:", res.data);
-        setUserModal(false);
+        setOtpModel(false);
       })
       .catch((err) => {
         console.error(err.response ? err.response.data : err.message);
         showToast("Signup failed. Please try again.", "error");
       });
+  };
+
+  const handleOtpComplete = (otp) => {
+    console.log("OTP entered:", otp);
+    model.otp = otp;
+  };
+
+  useEffect(() => {
+    console.log("Updated otpData:", otpData);
+  }, [otpData]);
+
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timer]);
+
+  // Format timer as "mm:ss"
+  const formatTime = () => {
+    const minutes = Math.floor(timer / 60);
+    const seconds = timer % 60;
+    return `${minutes < 10 ? `0${minutes}` : minutes}:${
+      seconds < 10 ? `0${seconds}` : seconds
+    }`;
   };
 
   const showToast = (message, type) => {
@@ -795,7 +877,7 @@ export default function Users() {
 
                     <button
                       className="rounded-md border px-4 py-1 bg-gray-950/85  text-white w-[250px]"
-                      onClick={createUser}
+                      onClick={createUserOtp}
                     >
                       Submit
                     </button>
@@ -1148,7 +1230,7 @@ export default function Users() {
 
                     <button
                       className="rounded-md border px-4 py-1 bg-gray-950/85  text-white w-[250px]"
-                      onClick={createUser}
+                      onClick={createUserOtp}
                     >
                       Submit
                     </button>
@@ -1198,7 +1280,7 @@ export default function Users() {
           className="fixed top-0 right-0 left-0 flex justify-center items-center w-full h-full "
         >
           <div
-            className="p-4 w-full max-w-[25%] max-h-full rounded-md"
+            className="p-4 w-full max-w-[350px] max-h-full rounded-md"
             ref={UserActiveRef}
           >
             <div className="bg-white px-8 rounded-md shadow-2xl border py-10 z-0 flex flex-col justify-center relative">
@@ -1207,7 +1289,7 @@ export default function Users() {
               </h3>
               <div className="flex my-2 gap-4">
                 <button
-                  className={`rounded-md px-8 py-1 ${
+                  className={`rounded-md text-center w-[110px] py-1 ${
                     user?.isActive === true ? "bg-red-500/85" : "bg-blue-500/85"
                   } text-white`}
                   onClick={user?.isActive === true ? DeActiveUser : ActiveUser}
@@ -1215,14 +1297,10 @@ export default function Users() {
                   {user?.isActive === true ? "De-Active" : "Accept"}
                 </button>
                 <button
-                  // className={`rounded-md px-8 py-1  text-white ${
-                  //   isReject ? "bg-gray-600/85" : "bg-red-600/85"
-                  // }`}
-                  className={`rounded-md px-8 py-1  text-white bg-gray-600/85`}
-                  // onClick={() => setIsReject(!isReject)}
+                  className={`rounded-md text-center w-[110px] py-1  text-white bg-gray-600/85`}
+                  onClick={() => setUserActive(false)}
                 >
                   cancel
-                  {/* {isReject ? "cancel" : "Reject"} */}
                 </button>
                 <button
                   onClick={() => setUserActive(false)}
@@ -1230,6 +1308,39 @@ export default function Users() {
                 >
                   <Close />
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {otpModel && (
+        <div
+          id="static-modal"
+          className="fixed top-0 right-0 left-0 flex justify-center items-start mt-2 w-full h-full "
+        >
+          <div
+            className="p-4 w-full max-w-[450px] max-h-full rounded-md"
+            ref={otpRef}
+          >
+            <div className="bg-white px-8 rounded-md shadow-2xl border py-10 z-0 flex flex-col justify-center relative">
+              <div className="flex my-[25px] flex-col">
+                <H6 className=" text-center py-1 capitalize h-full">
+                  OTP Verification
+                </H6>
+                <Font2 className="text-sm text-[#666] text-center mb-4">
+                  please enter otp {otpData.otp}
+                </Font2>
+                <div>
+                  <OTPInput length={6} onComplete={handleOtpComplete} />
+                  <p className="italic text-end text-sm pt-1">{formatTime()}</p>
+                </div>
+                <Button
+                  className="rounded-md border px-4 py-1 bg-fuchsia-950/85  text-white w-full"
+                  onClick={createUser}
+                >
+                  confirm
+                </Button>
               </div>
             </div>
           </div>

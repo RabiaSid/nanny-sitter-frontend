@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdAddCircleOutline } from "react-icons/md";
-import { Get, Put } from "@/config/api-method";
+import { Get, Put, Delete } from "@/config/api-method";
 import Table from "@/component/common/table";
 import { Close } from "@/config/app-constant";
 import edit from "@/assets/dashboard/header-icon/edit.png";
 import Toast from "@/component/common/toast";
 import InputField from "@/component/common/input";
 import TextArea from "@/component/common/textarea";
+import { MdOutlineDeleteSweep } from "react-icons/md";
 
 const AllRequestCol = [
   { heading: "Sno", key: "Sno" },
@@ -16,6 +17,7 @@ const AllRequestCol = [
   { heading: "Email", key: "email" },
   { heading: "Status", key: "status" },
   { heading: "Detail", key: "detail" },
+  { heading: "Remove", key: "remove" },
 ];
 
 export default function Bookings() {
@@ -80,7 +82,15 @@ export default function Bookings() {
                 firstName: user.firstName,
                 email: user.email,
                 region: user.region,
-                rawStatus: item.status, // Store raw status for filtering
+                rawStatus: item.status,
+                remove: (
+                  <button onClick={() => DeleteBooking(item._id)}>
+                    <MdOutlineDeleteSweep
+                      size={24}
+                      className="text-red-700/55"
+                    />
+                  </button>
+                ),
               };
             })
           );
@@ -127,6 +137,21 @@ export default function Bookings() {
       })
       .catch((err) => {
         console.error("Error fetching booking data:", err);
+      });
+  };
+
+  const DeleteBooking = (id) => {
+    if (!id) {
+      console.error("Invalid ID provided for deletion");
+      return;
+    }
+    console.log("Deleting Booking with ID:", id);
+    Delete(`/booking/${id}`)
+      .then((res) => {
+        showToast("Booking Removed Successfully", "success");
+      })
+      .catch((err) => {
+        console.error("Error while deleting Booking:", err);
       });
   };
 
