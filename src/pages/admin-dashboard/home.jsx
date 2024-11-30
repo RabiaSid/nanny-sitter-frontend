@@ -72,7 +72,7 @@ export default function AdminDashboardMain() {
           </div>
         </div>
 
-        <div className="group relative cursor-pointer overflow-hidden bg-white p-2 ring-1 ring-gray-900/5 transition-all duration-300 sm:max-w-sm sm:rounded-lg w-full">
+        {/* <div className="group relative cursor-pointer overflow-hidden bg-white p-2 ring-1 ring-gray-900/5 transition-all duration-300 sm:max-w-sm sm:rounded-lg w-full">
           <span className="absolute top-8 left-8 z-0 h-0 w-0 rounded-full bg-pink-500 transition-all duration-300 group-hover:scale-[10] group-hover:h-20 group-hover:w-20"></span>
           <div className="relative z-10 mx-auto w-full flex items-center justify-around">
             <span className="grid h-[55px] w-[55px] place-items-center rounded-full bg-pink-500 transition-all duration-300 group-hover:bg-pink-400">
@@ -103,7 +103,7 @@ export default function AdminDashboardMain() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
       <div className="flex justify-between gap-2 ">
         <div className="w-[65%] ring-1 ring-gray-900/5 rounded-md p-3">
