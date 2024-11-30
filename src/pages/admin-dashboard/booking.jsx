@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { MdAddCircleOutline } from "react-icons/md";
-import { Get, Put, Delete } from "@/config/api-method";
+import { Get, Put, Delete, Post } from "@/config/api-method";
 import Table from "@/component/common/table";
 import { Close } from "@/config/app-constant";
 import edit from "@/assets/dashboard/header-icon/edit.png";
@@ -9,6 +9,7 @@ import Toast from "@/component/common/toast";
 import InputField from "@/component/common/input";
 import TextArea from "@/component/common/textarea";
 import { MdOutlineDeleteSweep } from "react-icons/md";
+import Button from "@/component/dashboard/button";
 
 const AllRequestCol = [
   { heading: "Sno", key: "Sno" },
@@ -39,6 +40,27 @@ export default function Bookings() {
     message: "",
     type: "",
   });
+  const [childCount, setChildCount] = useState(null);
+  const [regiondropdown, setRegionDropdown] = useState(false);
+  const regiondropdownRef = useRef(null);
+  const [selectUser, setSelectUser] = useState([]);
+  const [selectNanny, setSelectNanny] = useState([]);
+  const [booking, setBooking] = useState({
+    parentId: null,
+    nannyId: null,
+    location: "",
+    message: "",
+    childrenCount: "",
+    childrenAges: [],
+    budget: "",
+    status: "pending",
+    schedule: "", // Single string that will contain combined days and timing, like "Monday Wednesday Friday Evening (4 PM - 8 PM)"
+    timing: "", // Timing selected from dropdown
+    selectedDays: [],
+    // budget: userData?.budget,
+    // startTime: null,
+    // endTime: null,
+  });
 
   const fillModel = (key, val) => {
     setModel((prevModel) => ({
@@ -46,6 +68,10 @@ export default function Bookings() {
       [key]: val,
     }));
   };
+  // const fillBookingModel = (key, val) => {
+  //   setBooking({ ...booking, [key]: val });
+
+  // };
 
   // Fetch all booking data
   const getAllData = () => {
@@ -207,6 +233,105 @@ export default function Bookings() {
       });
   };
 
+  const createBooking = () => {
+    console.log("Response received:", booking);
+    Post("booking", booking)
+      .then((res) => {
+        console.log("Response received:", res);
+        console.log("Response data:", res.data);
+        setBookingModal(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        // showToast("Signup failed. Please try again.", "error");
+      });
+  };
+
+  const handleChildCountChange = (e) => {
+    const newCount = parseInt(e.target.value) || 0;
+    setChildCount(newCount);
+    setBooking((prevBooking) => ({
+      ...prevBooking,
+      childrenCount: newCount,
+      childrenAges: new Array(newCount).fill(""),
+    }));
+  };
+
+  const handleAgeChange = (index, value) => {
+    const newAges = [...booking.childrenAges];
+    newAges[index] = value;
+    setBooking({ ...booking, childrenAges: newAges });
+  };
+
+  // Handle day selection
+  const handleDaySelection = (day) => {
+    // Check if the timing is selected
+    if (!booking.timing) {
+      alert("Please select a timing first.");
+      return;
+    }
+
+    // Toggle day selection
+    let updatedDays = [...booking.selectedDays];
+    if (updatedDays.includes(day)) {
+      // Remove the day if it's already selected
+      updatedDays = updatedDays.filter((item) => item !== day);
+    } else {
+      // Add the day if it's not selected
+      updatedDays.push(day);
+    }
+
+    // Update the selectedDays array
+    setBooking({
+      ...booking,
+      selectedDays: updatedDays,
+    });
+  };
+
+  // Handle timing selection
+  const handleTimingSelection = (e) => {
+    const selectedTiming = e.target.value;
+
+    // Update the timing in booking
+    setBooking({ ...booking, timing: selectedTiming });
+  };
+
+  // Generate the schedule string
+  const generateSchedule = () => {
+    if (booking.selectedDays.length === 0 || !booking.timing) {
+      return "";
+    }
+
+    // Create the schedule string: "Monday Wednesday Friday Evening (4 PM - 8 PM)"
+    return `${booking.selectedDays.join(" ")} ${booking.timing}`;
+  };
+
+  // Use the generated schedule
+  const schedule = generateSchedule();
+
+  booking.schedule = schedule;
+
+  const handleSelectParent = (e) => {
+    setBooking((prevBooking) => ({
+      ...prevBooking,
+      parentId: e.target.value,
+    }));
+  };
+
+  const handleSelectNanny = (e) => {
+    setBooking((prevBooking) => ({
+      ...prevBooking,
+      nannyId: e.target.value,
+    }));
+  };
+
+  useEffect(() => {
+    setBooking((prevBooking) => ({
+      ...prevBooking,
+      schedule,
+    }));
+  }, [schedule]);
+
   // Apply search and status filter
   useEffect(() => {
     let filteredData = [...allDatasource];
@@ -255,6 +380,51 @@ export default function Bookings() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        regiondropdownRef.current &&
+        !regiondropdownRef.current.contains(event.target)
+      ) {
+        setRegionDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const getSelectUser = () => {
+    Get("/auth")
+      .then((res) => {
+        const users = res?.data?.filter((user) => user.role === "user") || [];
+        setSelectUser(users);
+      })
+      .catch((err) => {
+        console.error("Error fetching data:", err);
+      });
+  };
+
+  const getSelectNanny = () => {
+    Get("/auth")
+      .then((res) => {
+        const users = res?.data?.filter((user) => user.role === "nanny") || [];
+        setSelectNanny(users);
+      })
+      .catch((err) => {
+        console.error("Error fetching data:", err);
+      });
+  };
+
+  useEffect(() => {
+    getSelectUser();
+    getSelectNanny();
+  }, []);
+
+  useEffect(() => {}, [filterList]);
 
   return (
     <section className="px-4">
@@ -434,6 +604,170 @@ export default function Bookings() {
             ref={BookingmodalRef}
           >
             <div className="bg-white px-8 rounded-md shadow-md border py-10 z-0 flex flex-col justify-center relative">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Nanny Dropdown */}
+                <div>
+                  <h3 className="text-sm font-semibold mb-2">For Nanny</h3>
+                  <select
+                    value={booking.parentId}
+                    onChange={handleSelectParent}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                  >
+                    <option value="">Select Parent</option>
+                    {Array.isArray(selectUser) &&
+                      selectUser.map((x) => (
+                        <option value={x._id} key={x._id}>
+                          {x.firstName + "  " + x.lastName}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                {/* user Dropdown */}
+                <div>
+                  <h3 className="text-sm font-semibold mb-2">For Nanny</h3>
+                  <select
+                    value={booking.nannyId}
+                    onChange={handleSelectNanny}
+                    className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                  >
+                    <option value="">Select Parent</option>
+                    {Array.isArray(selectNanny) &&
+                      selectNanny.map((x) => (
+                        <option value={x._id} key={x._id}>
+                          {x.firstName + "  " + x.lastName}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1 my-2">
+                {[
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday",
+                ].map((day, index) => (
+                  <span
+                    key={index}
+                    onClick={() => handleDaySelection(day)}
+                    className={`py-1 px-3 border rounded-full text-gray-700 cursor-pointer text-sm ${
+                      booking.selectedDays.includes(day)
+                        ? "border-red-600 text-red-800"
+                        : ""
+                    }`}
+                  >
+                    {day}
+                  </span>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Timing Selection Dropdown */}
+                <select
+                  value={booking.timing}
+                  onChange={handleTimingSelection}
+                  className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                >
+                  <option value="">Select Timing</option>
+                  <option value="Morning (8 AM - 12 PM)">
+                    Morning (8 AM - 12 PM)
+                  </option>
+                  <option value="Afternoon (12 PM - 4 PM)">
+                    Afternoon (12 PM - 4 PM)
+                  </option>
+                  <option value="Evening (4 PM - 8 PM)">
+                    Evening (4 PM - 8 PM)
+                  </option>
+                  <option value="Night (8 PM - 12 AM)">
+                    Night (8 PM - 12 AM)
+                  </option>
+                </select>
+
+                <select
+                  name="location"
+                  value={model.location || ""}
+                  onChange={(e) =>
+                    setBooking({ ...booking, location: e.target.value })
+                  }
+                  className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                >
+                  <option value="">Select Region</option>
+                  <option value="usa">USA</option>
+                  <option value="canada">Canada</option>
+                </select>
+              </div>
+
+              {/* <div>
+                <h3 className="text-sm font-semibold">Selected Schedule:</h3>
+                <p className="text-sm">
+                  {schedule ? schedule : "No schedule selected"}
+                </p>
+              </div> */}
+              <div className="grid grid-cols-2 gap-4 mb-3">
+                <div className="">
+                  <h3 className="text-sm font-semibold mb-2">Enter Budget</h3>
+                  <input
+                    type="text"
+                    placeholder={"Enter Your budget"}
+                    value={booking.budget}
+                    onChange={(e) =>
+                      setBooking({ ...booking, budget: e.target.value })
+                    }
+                    className="flex h-10 w-full rounded-md border border-[#e5e7eb] px-3 py-2 text-sm"
+                  />
+                </div>
+
+                <div className="">
+                  <h3 className="text-sm font-semibold">Number of children</h3>
+                  <input
+                    type="number"
+                    placeholder="Number of children"
+                    value={booking.childrenCount || ""}
+                    onChange={handleChildCountChange}
+                    className="flex mt-2 h-10 w-full border-[1px] rounded-md px-3 py-2 text-sm focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className=" flex gap-2">
+                {Array.from({ length: booking.childrenCount }).map(
+                  (_, index) => (
+                    <div key={index} className="mt-2 max-w-[150px]">
+                      <input
+                        type="number"
+                        value={booking.childrenAges[index] || ""}
+                        onChange={(e) => handleAgeChange(index, e.target.value)}
+                        placeholder={`Age of Child ${index + 1}`}
+                        className="flex h-10 w-full px-3 py-2 text-sm border-[1px] rounded-sm focus:outline-none"
+                      />
+                    </div>
+                  )
+                )}
+              </div>
+              <div className="my-2">
+                <TextArea
+                  type="text"
+                  label="Message"
+                  value={booking.message || ""}
+                  // onChange={(e) => fillModel("message", e.target.value)}
+                  onChange={(e) =>
+                    setBooking({ ...booking, message: e.target.value })
+                  }
+                  rows={5}
+                  className=""
+                />
+              </div>
+
+              <Button
+                className="rounded-md border mt-2 px-4 py-1 bg-sky-950/85  text-white w-full"
+                onClick={createBooking}
+              >
+                confirm
+              </Button>
+
               <button
                 onClick={() => setBookingModal(false)}
                 className="absolute top-[-20px] right-[-20px]"
