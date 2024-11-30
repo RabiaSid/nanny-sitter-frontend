@@ -11,6 +11,7 @@ import InputField from "@/component/common/input";
 import FileUpload from "@/component/common/upload";
 import TextArea from "@/component/common/textarea";
 import Toast from "@/component/common/toast";
+import { Post } from "@/config/api-method";
 
 const AllRequestCol = [
   { heading: "Image", key: "image" },
@@ -18,6 +19,7 @@ const AllRequestCol = [
   { heading: "Email", key: "email" },
   { heading: "Role", key: "role" },
   { heading: "Region", key: "region" },
+  { heading: "Status", key: "isActive" },
   { heading: "Detail", key: "detail" },
 ];
 
@@ -29,25 +31,27 @@ export default function Users() {
   const [selectedRole, setSelectedRole] = useState("");
   const requestModalRef = useRef(null);
   const [isModalOpen, setModalOpen] = useState(false);
-  const ModalRef = useRef(null);
+  const modalRef = useRef(null);
+  const [isUserModal, setUserModal] = useState(false);
+  const UsermodalRef = useRef(null);
+  const [isUserActive, setUserActive] = useState(false);
+  const UserActiveRef = useRef(null);
+  const [UserId, setUserId] = useState(false);
   const [serviceTypedropdown, setServiceTypeDropdown] = useState(false);
   const serviceTypedropdownRef = useRef(null);
   const [shareNannydropdown, setshareNannyDropdown] = useState(false);
   const shareNannydropdownRef = useRef(null);
   const [regiondropdown, setRegionDropdown] = useState(false);
   const regiondropdownRef = useRef(null);
-  const userData = useSelector((state) => state.user);
-  const [selected, setSelected] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  // const [isModalOpen, setModalOpen] = useState(false);
-  const modalRef = useRef(null);
+  const [selected, setSelected] = useState(true);
   const [toast, setToast] = useState({
     isVisible: false,
     message: "",
     type: "",
   });
-
+  const [loading, setLoading] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
 
   const fillModel = (key, val) => {
@@ -75,12 +79,23 @@ export default function Users() {
             email: item.email,
             role: item.role,
             region: item.region || "N/A",
+            isActive: (
+              <button
+                className={`rounded-md px-6 py-1  text-white w-[110px] ${
+                  item.isActive === true ? "bg-sky-800/85" : "bg-red-600/85"
+                }`}
+                onClick={() => handleActiveUser(item._id)}
+              >
+                {item?.isActive === true ? "active" : "inactive"}
+              </button>
+            ),
             detail: (
               <button onClick={() => handleSubModel(item._id)}>
                 <HiOutlineDotsVertical />
               </button>
             ),
           }));
+          setLoading(false);
           setAllDatasource(AllUserData);
         }
       })
@@ -93,7 +108,7 @@ export default function Users() {
     Get(`/auth/${id}`)
       .then((res) => {
         console.log("Fetched nanny data:", res?.data);
-        setUser(res?.data);
+        setUser({ ...res?.data });
       })
       .catch((err) => {
         console.error("Error fetching user data:", err);
@@ -194,12 +209,72 @@ export default function Users() {
     setModalOpen(true);
   };
 
-  const handleCloseModal = () => setModalOpen(false);
+  const handleActiveUser = (id) => {
+    Get(`/auth/${id}`)
+      .then((res) => {
+        setUserActive(true);
+        console.log("Fetched nanny data:", res?.data);
+        setUser({ ...res?.data });
+      })
+      .catch((err) => {
+        console.error("Error fetching user data:", err);
+      });
+  };
+
+  const ActiveUser = () => {
+    Put(
+      "auth",
+      {
+        isActive: true,
+      },
+      user._id
+    )
+      .then((res) => {
+        showToast("User Active Successfully", "success");
+        setUserActive(false);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  const DeActiveUser = () => {
+    Put(
+      "auth",
+      {
+        isActive: false,
+      },
+      user._id
+    )
+      .then((res) => {
+        showToast("User Active Successfully", "success");
+        setUserActive(false);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         setModalOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        UsermodalRef.current &&
+        !UsermodalRef.current.contains(event.target)
+      ) {
+        setUserModal(false);
       }
     };
 
@@ -288,6 +363,27 @@ export default function Users() {
     };
   }, []);
 
+  const createUser = () => {
+    console.log(model);
+    model.isActive = true;
+    if (selected === true) {
+      model.role = "user";
+    } else {
+      model.role = "nanny";
+    }
+
+    Post("auth/signup", model)
+      .then((res) => {
+        console.log("Response received:", res);
+        console.log("Response data:", res.data);
+        setUserModal(false);
+      })
+      .catch((err) => {
+        console.error(err.response ? err.response.data : err.message);
+        showToast("Signup failed. Please try again.", "error");
+      });
+  };
+
   const showToast = (message, type) => {
     setToast({ isVisible: true, message, type });
 
@@ -320,17 +416,21 @@ export default function Users() {
             <option value="nanny">Nanny</option>
           </select>
           <div>
-            <MdPersonAdd size={28} color="#dbcce0" />
+            <button onClick={() => setUserModal(true)}>
+              <MdPersonAdd size={28} color="#dbcce0" />
+            </button>
           </div>
         </div>
       </div>
 
       <div className="flex gap-4 pt-2">
         <Table
-          tableClass="overflow-y-scroll max-h-[460px] border w-full"
+          tableClass="overflow-y-scroll max-h-[420px] border w-full"
           tableHeaderClass="bg-fuchsia-700 w-full text-white sticky top-0 capitalize font-montserrat"
           datasource={filterList.length > 0 ? filterList : allDatasource}
           cols={AllRequestCol}
+          loading={loading}
+          loaderColor="text-fuchsia-700"
         />
       </div>
 
@@ -341,7 +441,7 @@ export default function Users() {
         >
           <div
             className="p-4 w-full max-w-[45%] max-h-full rounded-md"
-            ref={ModalRef}
+            ref={modalRef}
           >
             <div className="bg-white px-8 rounded-md shadow-md border py-10 z-0 flex flex-col justify-center relative">
               <div className="absolute top-6 right-6">
@@ -524,6 +624,613 @@ export default function Users() {
               >
                 <Close />
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isUserModal && (
+        <div
+          id="static-modal"
+          className="fixed top-0 right-0 left-0 flex justify-center items-center w-full h-full bg-slate-50 bg-opacity-5 backdrop-blur-lg"
+        >
+          <div
+            className="p-4 w-full max-w-[70%] max-h-full rounded-md"
+            ref={UsermodalRef}
+          >
+            <div className="bg-white px-8 rounded-md shadow-md border py-10 z-0 flex flex-col justify-center relative">
+              <div className="mt-8">
+                {selected === true ? (
+                  <>
+                    <div className="gap-x-4 grid grid-cols-3">
+                      <div>
+                        <span className="text-sm font-medium font-lato">
+                          Profile Picture
+                        </span>
+                        <FileUpload
+                          onChange={handleImageChange}
+                          className="bg-transparent flex  items-center px-6 h-[38px] rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm
+                w-full focus:outline-none"
+                        >
+                          <strong className="text-[#ccc] font-medium">
+                            upload
+                          </strong>
+                        </FileUpload>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium font-lato">
+                          First Name
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.firstName}
+                          onChange={(e) =>
+                            fillModel("firstName", e.target.value)
+                          }
+                          placeholder="firstName"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Last Name
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.lastName}
+                          onChange={(e) =>
+                            fillModel("lastName", e.target.value)
+                          }
+                          placeholder="lastName"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato">
+                          Email
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.email}
+                          onChange={(e) => fillModel("email", e.target.value)}
+                          placeholder="email"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      {/* Service Type */}
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Service Type
+                        </span>
+                        <select
+                          name="serviceType"
+                          value={model.serviceType || ""}
+                          onChange={(e) =>
+                            fillModel("serviceType", e.target.value)
+                          }
+                          className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                        >
+                          <option value="">Select Service Type</option>
+                          <option value="part-time">Part Time</option>
+                          <option value="full-time">Full Time</option>
+                          <option value="occasional">Occasional</option>
+                        </select>
+                      </div>
+
+                      {/* Region */}
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Region
+                        </span>
+                        <select
+                          name="region"
+                          value={model.region || ""}
+                          onChange={(e) => fillModel("region", e.target.value)}
+                          className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                        >
+                          <option value="">Select Region</option>
+                          <option value="usa">USA</option>
+                          <option value="canada">Canada</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Zip Code
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.zipCode}
+                          onChange={(e) => fillModel("zipCode", e.target.value)}
+                          placeholder="zipCode"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          password
+                        </span>
+                        <InputField
+                          type="password"
+                          value={model.password || ""}
+                          onChange={(e) =>
+                            fillModel("password", e.target.value)
+                          }
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-sm font-medium font-lato pb-2">
+                        Describtion
+                      </span>
+                      <TextArea
+                        value={model.parentJobDescription}
+                        onChange={(e) =>
+                          fillModel("parentJobDescription", e.target.value)
+                        }
+                        placeholder={"message"}
+                        rows={5}
+                        className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                      />
+                    </div>
+
+                    <button
+                      className="rounded-md border px-4 py-1 bg-gray-950/85  text-white w-[250px]"
+                      onClick={createUser}
+                    >
+                      Submit
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="gap-x-4 grid grid-cols-4">
+                      <div>
+                        <span className="text-sm font-medium font-lato">
+                          Profile Picture
+                        </span>
+                        <FileUpload
+                          onChange={handleImageChange}
+                          className="bg-transparent flex  items-center px-6 h-[38px] rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm
+                w-full focus:outline-none"
+                        >
+                          <strong className="text-[#ccc] font-medium">
+                            upload
+                          </strong>
+                        </FileUpload>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium font-lato">
+                          First Name
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.firstName}
+                          onChange={(e) =>
+                            fillModel("firstName", e.target.value)
+                          }
+                          placeholder="firstName"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Last Name
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.lastName}
+                          onChange={(e) =>
+                            fillModel("lastName", e.target.value)
+                          }
+                          placeholder="lastName"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato">
+                          Email
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.email}
+                          onChange={(e) => fillModel("email", e.target.value)}
+                          placeholder="email"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      {/* Service Type */}
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Service Type
+                        </span>
+                        <select
+                          name="serviceType"
+                          value={model.serviceType || ""}
+                          onChange={(e) =>
+                            fillModel("serviceType", e.target.value)
+                          }
+                          className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                        >
+                          <option value="">Select Service Type</option>
+                          <option value="part-time">Part Time</option>
+                          <option value="full-time">Full Time</option>
+                          <option value="occasional">Occasional</option>
+                        </select>
+                      </div>
+
+                      {/* Region */}
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Region
+                        </span>
+                        <select
+                          name="region"
+                          value={model.region || ""}
+                          onChange={(e) => fillModel("region", e.target.value)}
+                          className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                        >
+                          <option value="">Select Region</option>
+                          <option value="usa">USA</option>
+                          <option value="canada">Canada</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Zip Code
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.zipCode}
+                          onChange={(e) => fillModel("zipCode", e.target.value)}
+                          placeholder="zipCode"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          password
+                        </span>
+                        <InputField
+                          type="password"
+                          value={model.password || ""}
+                          placeholder="password"
+                          onChange={(e) =>
+                            fillModel("password", e.target.value)
+                          }
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-2">
+                          Budget
+                        </span>
+                        <InputField
+                          type="text"
+                          value={model.budget}
+                          onChange={(e) => fillModel("budget", e.target.value)}
+                          placeholder="budget"
+                          inputClass="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                        />
+                      </div>
+
+                      {/* Language */}
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-3">
+                          Language
+                        </span>
+                        <select
+                          name="Language"
+                          value={model.Language || ""}
+                          onChange={(e) =>
+                            fillModel("Language", e.target.value)
+                          }
+                          className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                        >
+                          <option value="">Select Language</option>
+                          <option value="english">English</option>
+                          <option value="spanish">Canada</option>
+                        </select>
+                      </div>
+
+                      {/* child Age Group */}
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-3">
+                          child Age Group
+                        </span>
+                        <select
+                          name="childAgeGroup"
+                          value={model.childAgeGroup || ""}
+                          onChange={(e) =>
+                            fillModel("childAgeGroup", e.target.value)
+                          }
+                          className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                        >
+                          <option value="">Select child Age Group</option>
+                          <option value="0-11">0-11m</option>
+                          <option value="1-3">1-3yrs</option>
+                          <option value="4-9">4-9yrs</option>
+                          <option value="10+">10+yrs</option>
+                        </select>
+                      </div>
+
+                      {/* experience */}
+                      <div>
+                        <span className="text-sm font-medium font-lato pb-3">
+                          Experience
+                        </span>
+                        <select
+                          name="experience"
+                          value={model.experience || ""}
+                          onChange={(e) =>
+                            fillModel("experience", e.target.value)
+                          }
+                          className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] border-gray-200 border text-gray-900 text-sm block w-full focus:outline-none"
+                        >
+                          <option value="">Select an experience</option>
+                          <option value="infant">Infants (0-11 months)</option>
+                          <option value="toddlers">Toddlers (1-3years)</option>
+                          <option value="pre-school">
+                            Preschoolers (4-9years)
+                          </option>
+                          <option value="grade-school">
+                            Grade-schoolers (10-12years)
+                          </option>
+                          <option value="high-school">
+                            High-schoolers (13-17 years)
+                          </option>
+                          <option value="adult">1-3yrs</option>
+                        </select>
+                      </div>
+
+                      <div className="flex items-center h-[40px] my-auto pt-2">
+                        <input
+                          id="default-checkbox"
+                          type="checkbox"
+                          checked={model.isAIDcertificate}
+                          onChange={(e) =>
+                            fillModel("isAIDcertificate", e.target.checked)
+                          }
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label
+                          htmlFor="default-checkbox"
+                          className="ms-2 text-sm font-medium font-lato  text-gray-800"
+                        >
+                          AID certificate
+                        </label>
+                      </div>
+
+                      <div className="flex items-center h-[40px] my-auto pt-2">
+                        <input
+                          id="default-checkbox"
+                          type="checkbox"
+                          checked={model.isCPRcertificate}
+                          onChange={(e) =>
+                            fillModel("isCPRcertificate", e.target.checked)
+                          }
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label
+                          htmlFor="default-checkbox"
+                          className="ms-2 text-sm font-medium font-lato  text-gray-800"
+                        >
+                          CPR certificate
+                        </label>
+                      </div>
+
+                      <div className="flex items-center h-[40px] my-auto pt-2">
+                        <input
+                          id="default-checkbox"
+                          type="checkbox"
+                          checked={model.isDrivingLicense}
+                          onChange={(e) =>
+                            fillModel("isDrivingLicense", e.target.checked)
+                          }
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label
+                          htmlFor="default-checkbox"
+                          className="ms-2 text-sm font-medium font-lato  text-gray-800"
+                        >
+                          Driving License
+                        </label>
+                      </div>
+
+                      <div className="flex items-center h-[40px] my-auto pt-2">
+                        <input
+                          id="default-checkbox"
+                          type="checkbox"
+                          checked={model.doHouseKeeping}
+                          onChange={(e) =>
+                            fillModel("doHouseKeeping", e.target.checked)
+                          }
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label
+                          htmlFor="default-checkbox"
+                          className="ms-2 text-sm font-medium font-lato  text-gray-800"
+                        >
+                          Do HouseKeeping
+                        </label>
+                      </div>
+
+                      <div className="flex items-center h-[40px] my-auto pt-2">
+                        <input
+                          id="default-checkbox"
+                          type="checkbox"
+                          checked={model.careSpecialChild}
+                          onChange={(e) =>
+                            fillModel("careSpecialChild", e.target.checked)
+                          }
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label
+                          htmlFor="default-checkbox"
+                          className="ms-2 text-sm font-medium font-lato  text-gray-800"
+                        >
+                          care SpecialChild
+                        </label>
+                      </div>
+
+                      <div className="flex items-center h-[40px] my-auto pt-2">
+                        <input
+                          id="default-checkbox"
+                          type="checkbox"
+                          checked={model.isLiven}
+                          onChange={(e) =>
+                            fillModel("isLiven", e.target.checked)
+                          }
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <label
+                          htmlFor="default-checkbox"
+                          className="ms-2 text-sm font-medium font-lato  text-gray-800"
+                        >
+                          Liven
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-sm font-medium font-lato my-2">
+                        Describtion
+                      </span>
+                      <TextArea
+                        value={model.aboutYourself}
+                        onChange={(e) =>
+                          fillModel("aboutYourself", e.target.value)
+                        }
+                        placeholder={"message"}
+                        rows={5}
+                        className="bg-transparent mt-0 mb-3 px-6 py-2 rounded-[5px] 
+                border-gray-200 border text-gray-900 text-sm  block
+                w-full focus:outline-none "
+                      />
+                    </div>
+
+                    <button
+                      className="rounded-md border px-4 py-1 bg-gray-950/85  text-white w-[250px]"
+                      onClick={createUser}
+                    >
+                      Submit
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="absolute top-2 w-[40%] left-[30%] right-[30%]">
+                <div className="relative w-full mt-4 rounded-full border h-10 p-1 bg-[#ccc]">
+                  <div className="relative w-full h-full flex items-center">
+                    <div
+                      onClick={() => setSelected(true)}
+                      className={`${
+                        selected === true
+                          ? "rounded-full bg-fuchsia-800 "
+                          : " bg-transparent "
+                      } cursor-pointer w-full flex justify-center h-full text-white`}
+                    >
+                      <button>User</button>
+                    </div>
+                    <div
+                      onClick={() => setSelected(false)}
+                      className={`${
+                        selected === false
+                          ? "rounded-full bg-fuchsia-800 "
+                          : " bg-transparent "
+                      } cursor-pointer w-full flex justify-center h-full text-white`}
+                    >
+                      <button>Nanny</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setUserModal(false)}
+                className="absolute top-[-20px] right-[-20px]"
+              >
+                <Close />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isUserActive && (
+        <div
+          id="static-modal"
+          className="fixed top-0 right-0 left-0 flex justify-center items-center w-full h-full "
+        >
+          <div
+            className="p-4 w-full max-w-[25%] max-h-full rounded-md"
+            ref={UserActiveRef}
+          >
+            <div className="bg-white px-8 rounded-md shadow-2xl border py-10 z-0 flex flex-col justify-center relative">
+              <h3 className="text-md font-semibold">
+                Do you want to update this user?
+              </h3>
+              <div className="flex my-2 gap-4">
+                <button
+                  className={`rounded-md px-8 py-1 ${
+                    user?.isActive === true ? "bg-red-500/85" : "bg-blue-500/85"
+                  } text-white`}
+                  onClick={user?.isActive === true ? DeActiveUser : ActiveUser}
+                >
+                  {user?.isActive === true ? "De-Active" : "Accept"}
+                </button>
+                <button
+                  // className={`rounded-md px-8 py-1  text-white ${
+                  //   isReject ? "bg-gray-600/85" : "bg-red-600/85"
+                  // }`}
+                  className={`rounded-md px-8 py-1  text-white bg-gray-600/85`}
+                  // onClick={() => setIsReject(!isReject)}
+                >
+                  cancel
+                  {/* {isReject ? "cancel" : "Reject"} */}
+                </button>
+                <button
+                  onClick={() => setUserActive(false)}
+                  className="absolute top-[-20px] right-[-20px]"
+                >
+                  <Close />
+                </button>
+              </div>
             </div>
           </div>
         </div>

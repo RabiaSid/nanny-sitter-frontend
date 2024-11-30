@@ -42,7 +42,7 @@ const HeroData = {
       <br className="hidden lg:block" /> the nanny job that’s right for you.
     </>
   ),
-  imgClass: "max-h-[500px] border",
+  imgClass: "max-h-[500px]",
 };
 
 const PointsData = {
