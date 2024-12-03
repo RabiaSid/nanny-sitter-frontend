@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import AdminDashboardMain from "./home";
 import Users from "./user";
 import Bookings from "./booking";
+import { removeData } from "@/config/helper";
 
 const pagesArr = [
   {
@@ -29,22 +30,23 @@ export default function AdminDashboard() {
   const userData = useSelector((a) => a.user);
   console.log(userData);
 
-  //   const SignOut = () => {
-
-  //   };
+  const logout = () => {
+    removeData("token");
+    window.location.href = "/";
+  };
 
   return (
     <div className="grid-cols-1 h-screen">
-      <div className="grid grid-cols-2 col-span-1 lg:col-span-12 h-[8%] bg-[#fff] border items-center">
-        <div className="grid grid-cols-1">
-          <h1 className="text-3xl font-medium text-black ps-3">
-            <img src={Logo} className="mr-3 h-10" alt="Nanny Logo" />
-          </h1>
+      <div className="flex w-full justify-between h-[8%] bg-[#fff] border items-center">
+        <div className="text-3xl font-medium text-black ps-3">
+          <img src={Logo} className="mr-3 h-10" alt="Nanny Logo" />
         </div>
-        <div className="grid grid-cols-2 justify-self-end text-right">
-          {/* <h3 className="text-black py-3 px-5">KJCLKJHCKLzsh</h3> */}
-          {/* <img src={profile} style={{ width: "3rem" }} className="rounded-full mx-5" /> */}
-        </div>
+        <button
+          className="block text-sm px-4 py-1 bg-red-400 me-2 rounded-sm hover:bg-red-500 text-white hover:shadow"
+          onClick={logout}
+        >
+          Logout
+        </button>
       </div>
       <div className="grid grid-cols-12 h-[92%]">
         <div className="col-span-1 bg-[#fff] border">
